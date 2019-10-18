@@ -6,5 +6,8 @@ all: crawler
 %o: %.c %.h
 						gcc $(CFLAGS) -c $<
 
-crawler:		
+crawler:		crawler.c
 						gcc $(CFLAGS) crawler.c $(LIBS) -o $@
+
+clean:
+						rm -f *.o crawler
