@@ -1,0 +1,11 @@
+#!/bin/bash
+cal=0
+runtest.sh "test1"
+if [ $? -eq 0 ]; then
+		let cal=$cal+1
+fi
+
+if [ $cal -eq 1 ]; then
+		echo "all tests succeed"
+fi
+exit 0
