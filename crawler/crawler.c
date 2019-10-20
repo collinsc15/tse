@@ -9,13 +9,40 @@
  * Description: 
  * 
  */
-
+#define _POSIX_SOURCE
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <webpage.h>
 #include <queue.h> 
 #include <hash.h>
 #include <string.h>
+
+int32_t pagesave(webpage_t *pagep, int id, char *dirname){
+	int sizeh= webpage_getHTMLlen(pagep);
+	int size=sizeh+100;
+	FILE *f;
+	char data[size];
+	char* URL = webpage_getURL(pagep);
+	strcat(URL,"\n");
+	sprintf(data, URL);
+	sprintf(data, "%d \n", webpage_getDepth(pagep));
+	sprintf(data, "%d \n", sizeh);
+	sprintf(data, webpage_getHTML(pagep));
+	printf("%s",data);
+	if((access("~/engs50/tse/pages/1", F_OK)!=0) || (access("~/engs50/tse/pages/1", W_OK)==0)){                                          
+		f=fopen("1","w");
+		fprintf(f,"%s",data);
+		fclose(f);
+		printf("closed");
+	}
+	else {
+		printf("error file 1 cannot be written");
+		return 1;
+	}
+	return 0;
+	
+}
 
 // A simple helper function that checks whether our hash has a given URL
 bool hashContainsURL(void* currPage, const void* searchAddress){
@@ -75,7 +102,8 @@ int main(void){
 		free(poppedURL); // free the url memory			
 		free(currGet); //  free the entire webpage
 	}
-
+	char *ph;
+	pagesave(w,1,ph);
 	hclose(hashOfPages); // closes hash table
 	qclose(qOfWebPages); // closes queue
 	webpage_delete(w);         //deletes webpage
