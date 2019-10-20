@@ -15,14 +15,15 @@
 #include <webpage.h>
 #include <queue.h> 
 #include <hash.h>
+#include <string.h>
 
-// A simple helper function that checks whether our hash has a URL
-int hashContainsURL(void* currPage, const void* searchAddress){
-	char* currPageURL = webpage_getURL((webpage_t*)currPage);
-	if (*currPageURL != *(char *)searchAddress){
-		return false;
+// A simple helper function that checks whether our hash has a given URL
+bool hashContainsURL(void* currPage, const void* searchAddress){
+	char* currPageURL =(char*)currPage; 
+	if (!strcmp(currPageURL,(char *)searchAddress)){ // if the strings are the same
+		return true;
 	}
-	return true;
+	return false;
 }
 
 int main(void){
@@ -30,9 +31,9 @@ int main(void){
 	char *url=seed;//point at url
 	webpage_t *w=webpage_new(seed, 0, NULL);    //creates webpage from url
 	queue_t* qOfWebPages = qopen(); // opens a queue for internal pages
-	//hashtable_t*  hashOfPages = hopen();
+	hashtable_t*  hashOfPages = hopen(30);
 	
-	if(!webpage_fetch(w)){    //fetches web page if false exits
+	if(!webpage_fetch(w)){    //exits if unable to fetch webpage
 		exit(EXIT_FAILURE);
 	}
 
@@ -54,15 +55,18 @@ int main(void){
 	// while there are URLs to be read
 	while((pos = webpage_getNextURL(w, pos, &currPageURL)) > 0 ) {
 		if (IsInternalURL(currPageURL)){    //if the url is internal
-			//	if hsearch(hashOfTables,hashContainsURL
-			webpage_t* currPage=webpage_new(currPageURL, 0, NULL); //our webpage
-			qput(qOfWebPages, currPage); //put it in our queue
-		  free(currPageURL);
+			char* hashSearch = (char *)hsearch(hashOfPages,hashContainsURL,currPageURL,strlen(currPageURL)); //read in the result of the search
+			if (!hashSearch){ // if we got a NULL pointer
+					webpage_t* currPage=webpage_new(currPageURL, 0, NULL); // create our web page
+					char currURL[80]; // and store the URL in a char array
+					strcpy(currURL, currPageURL);
+					hput(hashOfPages,currURL,currURL,strlen(currPageURL)); // add the charr array to our hash table
+					qput(qOfWebPages, currPage); //put the site in the queue
+				}
 		}
+		free(currPageURL); //always free the currPageUrl memory				
 	}
-	free(currPageURL);
-
-
+	
 	// while our queue is non-empty
 	void* currGet;
 	while ((currGet = qget(qOfWebPages)) != NULL){
@@ -71,8 +75,9 @@ int main(void){
 		free(poppedURL); // free the url memory			
 		free(currGet); //  free the entire webpage
 	}
-	
-	qclose(qOfWebPages);
+
+	hclose(hashOfPages); // closes hash table
+	qclose(qOfWebPages); // closes queue
 	webpage_delete(w);         //deletes webpage
 	exit(EXIT_SUCCESS);
 }
