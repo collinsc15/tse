@@ -23,6 +23,11 @@ int32_t pagesave(webpage_t *pagep, int id, char *dirname){
 	int size=sizeh+100;
 	FILE *f;
 	char data[size];
+	char path[40];
+	//strcpy(path, "~/engs50/tse/");
+	//sprintf(path,"%s", dirname);
+	//sprintf(path,"/%d",id);
+	//printf("path: %s",path);
 	char* URL = webpage_getURL(pagep);
 	strcat(URL,"\n");
 	sprintf(data, URL);
