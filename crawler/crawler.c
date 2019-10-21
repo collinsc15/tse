@@ -19,36 +19,40 @@
 #include <string.h>
 
 int32_t pagesave(webpage_t *pagep, int id, char *dirname){
-	int sizeh = webpage_getHTMLlen(pagep);
-	int size = sizeh+100;
-	FILE *f;
-	char data[size];
-	char path[40];
+	int sizeh = webpage_getHTMLlen(pagep); // we grab the charsize of the html of our page
+	int size = sizeh+100; // we add an extra 100 to store the other data we will be using
+	FILE *f; // create a file object pointer
+	char webpageData[size]; // the data we will be storing in our webpage file 
 
-	webpage_fetch(pagep);
-	char* URL = webpage_getURL(pagep);
-	char* forSpaces = webpage_getHTML(pagep);
-	strcat(URL,"\n");
-	
-	sprintf(data,"%s%d\n%d\n%s", URL, webpage_getDepth(pagep), sizeh, forSpaces);
+	webpage_fetch(pagep); // self-evident
+	char* url = webpage_getURL(pagep); // self-evident
+	char* htmlCode = webpage_getHTML(pagep); // self-evident
+	strcat(url,"\n"); //concat a newline to our url 
 
+	// append everything to our character array
+	sprintf(webpageData,"%s%d\n%d\n%s", url, webpage_getDepth(pagep), sizeh, htmlCode);
+
+	// save address for the file
 	char relSavePath[300] = {0};
+	//EX: ../pages/1
 	sprintf(relSavePath,"%s%s%s%d","../",dirname,"/",id);
 
+	//if the file doesn't exist or the file is readable
 	if((access(relSavePath, F_OK)!=0) || (access(relSavePath, W_OK)==0)){
-		f=fopen(relSavePath,"w");          //opens file with id name
-		if ( f != NULL){
-				fprintf(f,"%s",data);
-				fclose(f);
-				printf("closed");
+		f=fopen(relSavePath,"w");  //opens/creates our file
+		if ( f != NULL){ //if we sucessfully open a file
+			fprintf(f,"%s",webpageData); // store our data
+			fclose(f); //and close the file
+		}
+		else
+			{
+				return 1; //function exit failure
 			}
 	}
 	else {
-		printf("error file 1 cannot be written");
 		return 1;
 	}
-	return 0;
-	
+	return 0;	// function exit success
 }
 
 // A simple helper function that checks whether our hash has a given URL
@@ -68,12 +72,13 @@ int main(void){
 	hashtable_t*  hashOfPages = hopen(30);
 	
 	if(!webpage_fetch(w)){    //exits if unable to fetch webpage
+		webpage_delete(w);
 		exit(EXIT_FAILURE);
 	}
 
 
 	char *content=webpage_getHTML(w); //gets html of website
-	//printf("%s", content);       //prints content of website
+	printf("%s", content);       //prints content of website
 	if (IsInternalURL(url)){    //scans if website is internal
 		printf("internal");
 	}
@@ -105,7 +110,7 @@ int main(void){
 	void* currGet;
 	while ((currGet = qget(qOfWebPages)) != NULL){
     char*	poppedURL = webpage_getURL((webpage_t*)currGet);
-		//	printf("%s\n",poppedURL); //print the URL of the popped page
+		printf("%s\n",poppedURL); //print the URL of the popped page
 		free(poppedURL); // free the url memory			
 		free(currGet); //  free the entire webpage
 	}
@@ -114,5 +119,6 @@ int main(void){
 	hclose(hashOfPages); // closes hash table
 	qclose(qOfWebPages); // closes queue
 	webpage_delete(w);         //deletes webpage
+	
 	exit(EXIT_SUCCESS);
 }
