@@ -24,19 +24,26 @@ int32_t pagesave(webpage_t *pagep, int id, char *dirname){
 	FILE *f;
 	char data[size];
 	char path[40];
-	//strcpy(path, "~/engs50/tse/");
-	//sprintf(path,"%s", dirname);
-	//sprintf(path,"/%d",id);
-	//printf("path: %s",path);
+	//	sprintf(path,"~/engs50/tse/%s",dirname);
+	sprintf(path,"/%s",dirname);
+	printf("path: %s",path);
+	webpage_fetch(pagep);
 	char* URL = webpage_getURL(pagep);
+	char* forspaces = webpage_getHTML(pagep);
 	strcat(URL,"\n");
-	sprintf(data, URL);
-	sprintf(data, "%d \n", webpage_getDepth(pagep));
-	sprintf(data, "%d \n", sizeh);
-	sprintf(data, webpage_getHTML(pagep));
+	sprintf(data,"%s%d\n%d\n%s", URL, webpage_getDepth(pagep), sizeh, forspaces);
 	printf("%s",data);
-	if((access("~/engs50/tse/pages/1", F_OK)!=0) || (access("~/engs50/tse/pages/1", W_OK)==0)){                                          
-		f=fopen("1","w");
+	if((access("~/engs50/tse/pages/1", F_OK)!=0) || (access("~/engs50/tse/pages/1", W_OK)==0)){
+	//if((access(path, F_OK)!=0) || (access(path, W_OK)==0)){
+		if (chdir("../pages")==0){           //changes directory to pages needs to be changed so it changes to dirname
+			printf("directory changed");
+		}
+		else {
+			printf("directory didn't change");
+		}
+		char snum[10];        //created for id
+		sprintf(snum, "%d",id);   //turns id into a string
+		f=fopen(snum,"w");          //opens file with id name
 		fprintf(f,"%s",data);
 		fclose(f);
 		printf("closed");
@@ -107,7 +114,8 @@ int main(void){
 		free(poppedURL); // free the url memory			
 		free(currGet); //  free the entire webpage
 	}
-	char *ph;
+	char ph[10];
+	strcpy(ph, "pages");
 	pagesave(w,1,ph);
 	hclose(hashOfPages); // closes hash table
 	qclose(qOfWebPages); // closes queue
