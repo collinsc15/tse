@@ -12,6 +12,7 @@
 #define _POSIX_SOURCE
 #include <unistd.h>
 #include <stdlib.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <webpage.h>
 #include <queue.h> 
@@ -120,6 +121,19 @@ int main(int argc, char* argv[]){
 	}
 	char ph[50] = {0};
 	strcpy(ph,argv[2]);
+  char dirCheck[100] = "../";
+	strcat(dirCheck,ph);
+	DIR* dir = opendir(dirCheck);
+	if (dir) {
+    closedir(dir);
+	}
+	else{
+		webpage_delete(w);
+		hclose(hashOfPages); // closes hash table
+		qclose(qOfWebPages); // closes queue			
+    printf("Directory does not exist");
+		exit(EXIT_FAILURE);
+	} 
 	while((w = qget(qOfWebPages)))
 		{
 			webpage_fetch(w);
@@ -158,13 +172,13 @@ int main(int argc, char* argv[]){
 
 			free(html);
 			//char ph[] = "pages";
-			if(pagesave(w,curr_id,ph)!=0){
-				printf("invalid directory or file access");
+			pagesave(w,curr_id,ph);
+				//	printf("invalid directory or file access");
 				//				webpage_delete(w);         //deletes webpage
 				//	hclose(hashOfPages); // closes hash table
 				//qclose(qOfWebPages); // closes queue
 				//	exit(EXIT_FAILURE);
-			}// save the page of interest
+			// save the page of interest
 			//	free(html);
 			webpage_delete(w);         //deletes webpage
 			curr_id += 1;
