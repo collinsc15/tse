@@ -37,14 +37,14 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	strcat(url,"\n"); //concat a newline to our url 
 	
 	// append everything to our character array
-	sprintf(webpageData,"%s%d\n%d\n%s", url, webpage_getDepth(pagep), sizeh, htmlCode);
+	snprintf(webpageData,size,"%s%d\n%d\n%s", url, webpage_getDepth(pagep), sizeh, htmlCode);
 	
 	// save address for the file
 	char relSavePath[300] = {0};
 	//EX: ../pages/1
 	//	printf("%s", relSavePath);
 	//	fflush(stdout);
-	sprintf(relSavePath,"%s%s%s%ld","../",dirname,"/",id);
+	snprintf(relSavePath,300,"%s%s%s%ld","../",dirname,"/",id);
 	
 	//if the file doesn't exist or the file is readable
 	if((access(relSavePath, F_OK)!=0) || (access(relSavePath, W_OK)==0)){
@@ -121,25 +121,29 @@ int main(int argc, char* argv[]){
 			while((pos = webpage_getNextURL(w, pos, &currPageURL)) > 0 ) {
 				if (IsInternalURL(currPageURL)){    //if the url is internal
 
-					webpage_t* currPage=webpage_new(currPageURL,(webpage_getDepth(w)+1), NULL); // create our web page
+				
 					//webpage_fetch(currPage);
-					//char currURL[100] = {0}; //store the URL in a char array
-					//strcpy(currURL, currPageURL);
-					//NormalizeURL(webpage_getURL(currPage));
-					void* hashSearch = hsearch(hashOfPages,hashContainsURL,webpage_getURL(currPage),strlen(webpage_getURL(currPage))); //read in the result of the search
+					char currURL[100]; //store the URL in a char array
+					strcpy(currURL, currPageURL);
+					NormalizeURL(currURL);
+					void* hashSearch = hsearch(hashOfPages,hashContainsURL,currURL, strlen(currURL)); //read in the result of the search
 					//printf("%s \n", currPageURL);
 					//fflush(stdout);
 					//printf("hash: %s \n", hashSearch);
 					//fflush(stdout);
+					//		printf("This is pagedepth %d \n", webpage_getDepth(w));
 					if ((!hashSearch) && (webpage_getDepth(w) < maxIter)){ // if we got a NULL pointer
-						hput(hashOfPages,webpage_getURL(currPage),webpage_getURL(currPage),strlen(webpage_getURL(currPage))); // add the charr array to our hash table
-						printf("we are putting in %s \n", webpage_getURL(currPage));
+						webpage_t* currPage=webpage_new(currURL,(webpage_getDepth(w)+1), NULL); // create our web page
+						//webpage_fetch(currPage);
+						hput(hashOfPages,currURL,currURL,strlen(currURL)); // add the charr array to our hash table
+						//		printf("we are putting in %s \n", currURL);
 						qput(qOfWebPages, currPage); //put the site in the queue
 					}
-					else{
-						free(currPage);
-					}
+					//	else{
+					//	free(currPage);
+					//	}
 				}
+				
 				free(currPageURL); //always free the currPageUrl memory				
 			}
 
