@@ -98,13 +98,6 @@ int main(int argc, char* argv[]){
 		printf("external");
 	}
 
-	void* hashSearch = hsearch(hashOfPages,hashContainsURL,"https://thayer.github.io/engs50/Resources/",strlen("https://thayer.github.io/engs50/Resources/")); //read in the result of the search
-	//printf("%s \n", currPageURL);
-	//fflush(stdout);
-	printf("hash:WTF  %s \n", hashSearch);
-	fflush(stdout);
-	
-
 	char *strPtr;
 	char id[100] = {0};
 	strcpy(id, argv[3]);
@@ -112,8 +105,7 @@ int main(int argc, char* argv[]){
 	long int curr_id = 1;
 	char ph[50] = {0};
 	strcpy(ph,argv[2]);
-	int depth = 0;
-	while(w = qget(qOfWebPages))
+	while((w = qget(qOfWebPages)))
 		{
 			webpage_fetch(w);
 			// initiating search of all internal hyperlinks
