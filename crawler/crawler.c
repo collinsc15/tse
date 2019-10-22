@@ -17,6 +17,9 @@
 #include <queue.h> 
 #include <hash.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
 
 int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	
@@ -31,7 +34,7 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
   size = sizeh+300; // we add an extra 100 to store the other data we will be using
 	FILE *f; // create a file object pointer
 	char webpageData[size]; // the data we will be storing in our webpage file 
-
+	//struct stat dirn;
 	memset(webpageData, 0, size*sizeof(char));
 	//	
 	//strcat(url,"\n"); //concat a newline to our url 
@@ -44,8 +47,10 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	//EX: ../pages/1
 	//	printf("%s", relSavePath);
 	//	fflush(stdout);
+	//char dir[50];
 	snprintf(relSavePath,300,"%s%s%s%ld","../",dirname,"/",id);
-	
+	//snprintf(dir,50, "../%s",dirname);
+
 	//if the file doesn't exist or the file is readable
 	if((access(relSavePath, F_OK)!=0) || (access(relSavePath, W_OK)==0)){
 		f=fopen(relSavePath,"w");  //opens/creates our file
@@ -77,6 +82,10 @@ bool hashContainsURL(void* currPage, const void* searchAddress){
 }
 
 int main(int argc, char* argv[]){
+	if (argc !=4){
+		printf("crawler <seedurl> <pagedir> <maxdepth>");
+		return 6;
+	}
 	char* seed = argv[1];   //url to be pointed at
 	
 	webpage_t *w=webpage_new(seed, 0, NULL);    //creates webpage from url
@@ -103,6 +112,10 @@ int main(int argc, char* argv[]){
 	strcpy(id, argv[3]);
 	long int maxIter = strtol(id, &strPtr, 10);
 	long int curr_id = 1;
+	if (maxIter<0){
+		printf("depth cannot be negative");
+		return 3;
+	}
 	char ph[50] = {0};
 	strcpy(ph,argv[2]);
 	while((w = qget(qOfWebPages)))
@@ -143,7 +156,10 @@ int main(int argc, char* argv[]){
 
 			free(html);
 			//char ph[] = "pages";
-			pagesave(w,curr_id,ph); // save the page of interest
+			if(pagesave(w,curr_id,ph)!=0){
+				printf("invalid directory or file access");
+				return 4;
+			}// save the page of interest
 			//	free(html);
 			webpage_delete(w);         //deletes webpage
 			curr_id += 1;
