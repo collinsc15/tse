@@ -20,11 +20,11 @@
 
 int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	
-	free(webpage_getHTML(pagep));
+	//	free(webpage_getHTML(pagep));
 	webpage_fetch(pagep); // self-evident
 	char* url = webpage_getURL(pagep); // self-evident
 	char* htmlCode = webpage_getHTML(pagep); // self-evident
-	
+ 
 	int sizeh = 0;
 	sizeh = webpage_getHTMLlen(pagep); // we grab the charsize of the html of our page
 	int size;
@@ -34,11 +34,11 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 
 	memset(webpageData, 0, size*sizeof(char));
 	//	
-	strcat(url,"\n"); //concat a newline to our url 
+	//strcat(url,"\n"); //concat a newline to our url 
 	
 	// append everything to our character array
-	snprintf(webpageData,size,"%s%d\n%d\n%s", url, webpage_getDepth(pagep), sizeh, htmlCode);
-	
+	snprintf(webpageData,size,"%s\n%d\n%d\n%s", url, webpage_getDepth(pagep), sizeh, htmlCode);
+	//free(htmlCode);
 	// save address for the file
 	char relSavePath[300] = {0};
 	//EX: ../pages/1
@@ -63,6 +63,7 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	else {
 		return 1;
 	}
+	//free(htmlCode);
 	return 0;	// function exit success
 }
 
@@ -87,6 +88,7 @@ int main(int argc, char* argv[]){
 	}
 
 	char *content=webpage_getHTML(w); //gets html of website
+	free(content);
 	//	printf("%s", content);       //prints content of website
 	if (IsInternalURL(seed)){    //scans if website is internal
 		hput(hashOfPages,seed,seed,strlen(seed)); // add the charr array to our hash table
@@ -115,13 +117,13 @@ int main(int argc, char* argv[]){
 		{
 			webpage_fetch(w);
 			// initiating search of all internal hyperlinks
+			char *html = webpage_getHTML(w);
 			int pos = 0;
 			char *currPageURL; // charr array that stores the URl we are looking at
 			// while there are URLs to be read
 			while((pos = webpage_getNextURL(w, pos, &currPageURL)) > 0 ) {
 				if (IsInternalURL(currPageURL)){    //if the url is internal
-
-				
+					
 					//webpage_fetch(currPage);
 					char currURL[100]; //store the URL in a char array
 					strcpy(currURL, currPageURL);
@@ -143,13 +145,14 @@ int main(int argc, char* argv[]){
 					//	free(currPage);
 					//	}
 				}
-				
+		 
 				free(currPageURL); //always free the currPageUrl memory				
 			}
 
-			
+			free(html);
 			//char ph[] = "pages";
 			pagesave(w,curr_id,ph); // save the page of interest
+			//	free(html);
 			webpage_delete(w);         //deletes webpage
 			curr_id += 1;
 		}
