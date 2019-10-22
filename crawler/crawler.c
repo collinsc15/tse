@@ -54,16 +54,18 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	//if the file doesn't exist or the file is readable
 	if((access(relSavePath, F_OK)!=0) || (access(relSavePath, W_OK)==0)){
 		f=fopen(relSavePath,"w");  //opens/creates our file
-		if ( f != NULL){ //if we sucessfully open a file
+		if ( f != NULL) { //if we sucessfully open a file
 			fprintf(f,"%s",webpageData); // store our data
 			printf("%s", relSavePath);
 			fflush(stdout);
 			fclose(f); //and close the file
 		}
-		else
-			{
-				return 1; //function exit failure
-			}
+		
+		else {
+			//			fclose(f); //and close the file
+			return 1; //function exit failure
+		}
+
 	}
 	else {
 		return 1;
@@ -158,7 +160,10 @@ int main(int argc, char* argv[]){
 			//char ph[] = "pages";
 			if(pagesave(w,curr_id,ph)!=0){
 				printf("invalid directory or file access");
-				return 4;
+				//				webpage_delete(w);         //deletes webpage
+				//	hclose(hashOfPages); // closes hash table
+				//qclose(qOfWebPages); // closes queue
+				//	exit(EXIT_FAILURE);
 			}// save the page of interest
 			//	free(html);
 			webpage_delete(w);         //deletes webpage
