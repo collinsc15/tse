@@ -1,5 +1,4 @@
 /* crawler.c --- crawls a website
-1;5202;0c1;5202;0c1;5202;0c * 
  * 
  * Author: Claire C. Collins
  * Created: Fri Oct 18 13:52:36 2019 (-0400)
@@ -46,7 +45,6 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	//EX: ../pages/1
 	
 	snprintf(relSavePath,300,"%s%s%s%ld","../",dirname,"/",id);
-	//snprintf(dir,50, "../%s",dirname);
 
 	//if the file doesn't exist or the file is readable
 	if((access(relSavePath, F_OK)!=0) || (access(relSavePath, W_OK)==0)){
@@ -143,36 +141,19 @@ int main(int argc, char* argv[]){
 					strcpy(currURL, currPageURL);
 					NormalizeURL(currURL);
 					void* hashSearch = hsearch(hashOfPages,hashContainsURL,currURL, strlen(currURL)); //read in the result of the search
-					//printf("%s \n", currPageURL);
-					//fflush(stdout);
-					//printf("hash: %s \n", hashSearch);
-					//fflush(stdout);
-					//		printf("This is pagedepth %d \n", webpage_getDepth(w));
 					if ((!hashSearch) && (webpage_getDepth(w) < maxIter)){ // if we got a NULL pointer
 						webpage_t* currPage=webpage_new(currURL,(webpage_getDepth(w)+1), NULL); // create our web page
-						//webpage_fetch(currPage);
 						hput(hashOfPages,currURL,currURL,strlen(currURL)); // add the charr array to our hash table
-						//		printf("we are putting in %s \n", currURL);
 						qput(qOfWebPages, currPage); //put the site in the queue
 					}
-					//	else{
-					//	free(currPage);
-					//	}
 				}
 		 
 				free(currPageURL); //always free the currPageUrl memory				
 			}
 
 			free(html);
-			//char ph[] = "pages";
 			pagesave(w,curr_id,ph);
-				//	printf("invalid directory or file access");
-				//				webpage_delete(w);         //deletes webpage
-				//	hclose(hashOfPages); // closes hash table
-				//qclose(qOfWebPages); // closes queue
-				//	exit(EXIT_FAILURE);
 			// save the page of interest
-			//	free(html);
 			webpage_delete(w);         //deletes webpage
 			curr_id += 1;
 		}
