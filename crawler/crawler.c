@@ -37,18 +37,14 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	char webpageData[size]; // the data we will be storing in our webpage file 
 	//struct stat dirn;
 	memset(webpageData, 0, size*sizeof(char));
-	//	
-	//strcat(url,"\n"); //concat a newline to our url 
 	
 	// append everything to our character array
 	snprintf(webpageData,size,"%s\n%d\n%d\n%s", url, webpage_getDepth(pagep), sizeh, htmlCode);
-	//free(htmlCode);
+
 	// save address for the file
 	char relSavePath[300] = {0};
 	//EX: ../pages/1
-	//	printf("%s", relSavePath);
-	//	fflush(stdout);
-	//char dir[50];
+	
 	snprintf(relSavePath,300,"%s%s%s%ld","../",dirname,"/",id);
 	//snprintf(dir,50, "../%s",dirname);
 
@@ -63,7 +59,6 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 		}
 		
 		else {
-			//			fclose(f); //and close the file
 			return 1; //function exit failure
 		}
 
@@ -71,7 +66,6 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	else {
 		return 1;
 	}
-	//free(htmlCode);
 	return 0;	// function exit success
 }
 
@@ -101,7 +95,6 @@ int main(int argc, char* argv[]){
 
 	char *content=webpage_getHTML(w); //gets html of website
 	free(content);
-	//	printf("%s", content);       //prints content of website
 	if (IsInternalURL(seed)){    //scans if website is internal
 		hput(hashOfPages,seed,seed,strlen(seed)); // add the charr array to our hash table
 		qput(qOfWebPages, w); //put the initial page in the queue
