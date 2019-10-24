@@ -67,3 +67,23 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	//free(htmlCode);
 	return 0;	// function exit success
 }
+webpage_t *pageload(int id, char *dirname){
+
+	char path[300] = {0};
+	snprintf(path,300,"%s%s%s%ld","../",dirname,"/",id);
+	FILE *f;
+	char url[100];
+	if((access(path, F_OK)!=0) || (access(path, W_OK)==0)){
+		f=fopen(path,"r");  //opens/creates our file
+		  if ( f != NULL) { //if we sucessfully open a file                                  
+			 fscanf(f, "%s",url);
+			 printf("%s",url);
+			 fclose(f); //and close the file
+			 webpage_t *w=webpage_new(url,0,NULL);
+			 return w;
+			}
+			else {   //      fclose(f); //and close the file
+				return NULL; //function exit failure
+			}                                                                                      }
+	return NULL;
+}                                                                                    
