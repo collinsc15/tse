@@ -4,21 +4,31 @@
 #include <ctype.h>
 
 void NormalizeWord(char word[]){
+	//printf("normalizing");
 	char *p = word;
 	
 	//check that word has more than three characters
 	//TODO: not working correctly
-	int size = sizeof(word) / sizeof(word[0]);
-	if(size < 4){
-		while(*p){
-			*p = "";
-			p++;
-		}
+	int size = strlen(word);
+	char temp[size];
+	if(size < 3){
+		//while(*p){
+			//*p = "";
+			//p++;
+		//}
+		//printf("less than 3");
+		//temp[]="";
+		strcpy(word, "");
 	}
 	else{
 	while (*p){
+		//printf("%s\n",p);
 		if(!isalpha(*p)){
-			*p = "";
+			//*p = "";
+			//printf("%s",p);
+			strcpy(word, "");
+			//word=NULL;
+			break;
 		}
 			*p = tolower(*p);
 			p++;
@@ -46,7 +56,9 @@ int main(void){
 	
 	while ((pos = webpage_getNextWord(w, pos, &result)) > 0) {
 		NormalizeWord(result);
-		printf("%s\n", result);	
+		if(strcmp(result,"")){
+				printf("%s\n", result);
+			}
 		free(result);
 	}
 	
