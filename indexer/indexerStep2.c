@@ -51,19 +51,21 @@ int main(void){
 	NormalizeWord(a);
 	printf("%s", a);
 
-
+	chdir("../forIndexer");
 	char* html = webpage_getHTML(w);
-	
+	FILE *f=fopen("1","a");
 	while ((pos = webpage_getNextWord(w, pos, &result)) > 0) {
 		NormalizeWord(result);
+		
+			
 		if(strcmp(result,"")){
-				printf("%s\n", result);
+			fprintf(f, "%s\n", result);
 			}
 		free(result);
 	}
 	
 	webpage_delete(w);
-	
+	fclose(f);
 
 	fflush(stdin);
 	fflush(stdout);
