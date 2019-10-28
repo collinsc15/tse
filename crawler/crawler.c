@@ -81,7 +81,8 @@ int main(int argc, char* argv[]){
 		printf("crawler <seedurl> <pagedir> <maxdepth>");
 		return 6;
 	}
-	char* seed = argv[1];   //url to be pointed at
+	char* seed = (char*) malloc((100)*sizeof(char));
+	seed = argv[1];   //url to be pointed at
 	
 	webpage_t *w=webpage_new(seed, 0, NULL);    //creates webpage from url
 	queue_t* qOfWebPages = qopen(); // opens a queue for internal pages
