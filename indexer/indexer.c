@@ -35,9 +35,20 @@ void add(void *docq){
 void adderFunc(void* hashWord) {
 	qapply(((word_t*)hashWord)->docs,add);
 				 //total_count += ((word_t*)hashWord) -> occurences; // add the datA to the totalCount
-	//printf("%s:%d\n",((word_t*)hashWord)->name,((word_t*)hashWord)->occurences);
-
+	//printf("%s:%d\n",((word_t*)hashWord)->name,((word_t*)hashWord)->occurences)
 }
+
+void docSprintf(void *doc){ 
+  printf(" %s",((doc_t*)doc)->name); 
+  printf(" %d",((doc_t*)doc)->occurences); 
+}
+
+void indexSprintf(void* hashWord){
+  printf("%s",((word_t*)hashWord)->name);  
+  qapply(((word_t*)hashWord)->docs, docSprintf); 
+  printf("\n");                                                                                                                                                                                                                                                                   
+}
+
 
 void closeThoseDamnQueues(void* hashWord) {
   qclose(((word_t*)hashWord)->docs); // add the datA to the totalCount
@@ -109,7 +120,7 @@ int main(int argc, char *argv[]){
 			printf("%s\n",currWord);
 			word_t *e=(word_t*)hsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
 			//sees if hash contains word
-			if ( NULL != e){  //if hash contains word
+			if (e){  //if hash contains word
 				doc_t *d=(doc_t*)qsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
 				if(d!=NULL){           //if it does
 					d->occurences += 1; // add 1 to the word occurence
@@ -160,7 +171,8 @@ int main(int argc, char *argv[]){
 	num-=1;
 	}
 	happly(wordHash, adderFunc); // calculate total_count
-	happly(wordHash, addObj);
+	happly(wordHash, addObj);		
+	happly(wordHash, indexSprintf);
 	happly(wordHash, closeThoseDamnQueues);
 	hclose(wordHash);
 	//fclose(f);
