@@ -39,8 +39,8 @@ void adderFunc(void* hashWord) {
 
 }
 
-void delete(void* hashWord) {
-  free((word_t*)hashWord); // add the datA to the totalCount
+void closeThoseDamnQueues(void* hashWord) {
+  qclose(((word_t*)hashWord)->docs); // add the datA to the totalCount
 }
 
 void addObj(void* hashWord){
@@ -155,12 +155,13 @@ int main(int argc, char *argv[]){
 	}
 	
 	
-	//happly(wordHash, delete);
+	
 	webpage_delete(w);
 	num-=1;
 	}
 	happly(wordHash, adderFunc); // calculate total_count
 	happly(wordHash, addObj);
+	happly(wordHash, closeThoseDamnQueues);
 	hclose(wordHash);
 	//fclose(f);
 	printf("words:%d",total_count);
