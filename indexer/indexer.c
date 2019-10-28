@@ -16,7 +16,7 @@
 #include <hash.h>
 #include <queue.h>                                                             // Function that adds all word occurences in a hash
 static int total_count = 0; // initialize the total_count = 0;
-
+static int total_obj = 0; // initialize the total_count = 0;
 typedef struct word {
 	char name[50];
 	int occurences;
@@ -24,13 +24,23 @@ typedef struct word {
 
 void adderFunc(void* hashWord) {
   total_count += ((word_t*)hashWord) -> occurences; // add the datA to the totalCount
+	printf("%s:%d\n",((word_t*)hashWord)->name,((word_t*)hashWord)->occurences);
 
+}
+
+void delete(void* hashWord) {
+  free((word_t*)hashWord); // add the datA to the totalCount
+}
+
+void addObj(void* hashWord){
+	total_obj+=1;
 }
 
 bool hashContainsWord(void* hashWord, const void* searchWord){
 	word_t *obj =(word_t*)hashWord;
 	//strcpy(h,obj->name);
-	if (strcmp(obj->name, (char*)searchWord)) {
+	//printf("objectname:%s\n",obj->name);
+	if (!strcmp(obj->name, (char*)searchWord)) {
 		return true;
 	}
   return false;
@@ -55,10 +65,12 @@ void NormalizeWord(char word[]){
 
 int main(void){
 	webpage_t *w = pageload(1, "pages");
-  webpage_fetch(w);
+	webpage_fetch(w);
+		 
+	
 	//free(webpage_getURL(w));
   //get next word
-	hashtable_t *wordHash = hopen(10000);
+	hashtable_t *wordHash = hopen(100);
   int pos = 0;
 	char *currWord;
   //testing NormalizeWord  
@@ -70,9 +82,10 @@ int main(void){
     if(strcmp(currWord,"")){
        // if we can find an element under the "normWord" key grab its int
 			printf("%s\n",currWord);
-			if ((currWord == hsearch(wordHash, hashContainsWord, currWord, strlen(currWord)))){
-				((word_t*)currWord)->occurences += 1; // add 1 to the word occurence
-				printf("more than 1 %s",currWord);
+			word_t *e=(word_t*)hsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
+			if ( NULL != e){
+				e->occurences += 1; // add 1 to the word occurence
+				//printf("more than 1 %s",currWord);
 			}
 			else {
 				word_t* newWord;
@@ -81,19 +94,25 @@ int main(void){
 					return 7;
 				}
 				memset(newWord->name, 0,(50*sizeof(newWord->name[0])));
-				//strcpy(newWord->name, currWord);
-				snprintf(newWord->name, 50,"%s", currWord);
+				strcpy(newWord->name, currWord);
+				//snprintf(newWord->name, 50,"%s", currWord);
 				newWord->occurences=1;
 				hput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
+				//free(newWord);
 			}
-			happly(wordHash, adderFunc); // calculate total_count
+			
 		}  
 		
 		free(currWord);
 	}
+	happly(wordHash, adderFunc); // calculate total_count
+	happly(wordHash, addObj);
+	happly(wordHash, delete);
 	hclose(wordHash);
+
 	webpage_delete(w);
 	//fclose(f);
 	printf("%d",total_count);
+	printf("\nobjects:%d",total_obj);
 	return 0;
 }
