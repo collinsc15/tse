@@ -52,6 +52,10 @@ void qclose(queue_t *qp) // function that deallocates queue memory
 	if (currElement!=NULL)
 		{
 			Element* nextElement = currElement->next;
+			if (currElement->data)
+				{
+					free(currElement->data);
+				}
 			free(currElement);
 			//			element = (Element*)qget(qp);
 			while(nextElement != NULL) // we free the memory of each element
@@ -60,6 +64,10 @@ void qclose(queue_t *qp) // function that deallocates queue memory
 					//free(element);
 					currElement = nextElement;
 					nextElement = currElement->next;
+					if (currElement->data)
+						{
+							free(currElement->data);
+						}
 					free(currElement);
 				}
 		}

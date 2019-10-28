@@ -1,5 +1,5 @@
 /* crawler.c --- crawls a website
- * 
+0;136;0c0;136;0c0;136;0c0;136;0c * 
  * Author: Claire C. Collins
  * Created: Fri Oct 18 13:52:36 2019 (-0400)
  * Edited by: Vlado Vojdanovski, Sat Oct 19
@@ -57,11 +57,13 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 		}
 		
 		else {
+			webpage_delete(pagep);
 			return 1; //function exit failure
 		}
 
 	}
 	else {
+		webpage_delete(pagep);
 		return 1;
 	}
 	return 0;	// function exit success
@@ -81,16 +83,19 @@ int main(int argc, char* argv[]){
 		printf("crawler <seedurl> <pagedir> <maxdepth>");
 		return 6;
 	}
-	char* seed = (char*) malloc((100)*sizeof(char));
-	seed = argv[1];   //url to be pointed at
+	char* seed = (char*) malloc((70)*sizeof(char));
+	strcpy(seed, argv[1]);   //url to be pointed at
 	
 	webpage_t *w=webpage_new(seed, 0, NULL);    //creates webpage from url
 	queue_t* qOfWebPages = qopen(); // opens a queue for internal pages
 	hashtable_t*  hashOfPages = hopen(1000);
 	
 	if(!webpage_fetch(w)){    //exits if unable to fetch webpage
+		qclose(qOfWebPages);
+		hclose(hashOfPages);
 		exit(EXIT_FAILURE);
 	}
+	//	free(seed);
 
 	char *content=webpage_getHTML(w); //gets html of website
 	free(content);
@@ -125,10 +130,12 @@ int main(int argc, char* argv[]){
 		qclose(qOfWebPages); // closes queue			
     printf("Directory does not exist");
 		exit(EXIT_FAILURE);
-	} 
+	}
+
+	
 	while((w = qget(qOfWebPages)))
 		{
-			webpage_fetch(w);
+			if(webpage_fetch(w)){
 			// initiating search of all internal hyperlinks
 			char *html = webpage_getHTML(w);
 			int pos = 0;
@@ -138,29 +145,36 @@ int main(int argc, char* argv[]){
 				if (IsInternalURL(currPageURL)){    //if the url is internal
 					
 					//webpage_fetch(currPage);
-					char currURL[100]; //store the URL in a char array
-					strcpy(currURL, currPageURL);
-					NormalizeURL(currURL);
-					void* hashSearch = hsearch(hashOfPages,hashContainsURL,currURL, strlen(currURL)); //read in the result of the search
+					//char currURL[100]; //store the URL in a char array
+					//strcpy(currURL, currPageURL);
+					//NormalizeURL(currURL);
+					void* hashSearch = hsearch(hashOfPages,hashContainsURL,currPageURL, strlen(currPageURL)); //read in the result of the search
 					if ((!hashSearch) && (webpage_getDepth(w) < maxIter)){ // if we got a NULL pointer
-						webpage_t* currPage=webpage_new(currURL,(webpage_getDepth(w)+1), NULL); // create our web page
-						hput(hashOfPages,currURL,currURL,strlen(currURL)); // add the charr array to our hash table
+						webpage_t* currPage=webpage_new(currPageURL,(webpage_getDepth(w)+1), NULL); // create our web page
+						hput(hashOfPages,currPageURL,currPageURL,strlen(currPageURL)); // add the charr array to our hash table
 						qput(qOfWebPages, currPage); //put the site in the queue
 					}
+					else{
+						free(currPageURL);
+					}
 				}
-		 
-				free(currPageURL); //always free the currPageUrl memory				
+				else{
+					free(currPageURL);
+				}				
 			}
-
-			free(html);
+			//free(currPageURL);
+		 	free(html);
 			pagesave(w,curr_id,ph);
 			// save the page of interest
 			webpage_delete(w);         //deletes webpage
 			curr_id += 1;
+			}
 		}
+	//	free(currPageURL);
+	//	    free(seed);
 			hclose(hashOfPages); // closes hash table
 			qclose(qOfWebPages); // closes queue
-			
+			//			free(seed);
 			exit(EXIT_SUCCESS);
 		
 }
