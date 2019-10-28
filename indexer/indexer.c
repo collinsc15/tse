@@ -67,8 +67,10 @@ int main(void){
 		NormalizeWord(currWord);
     if(strcmp(currWord,"")){
        // if we can find an element under the "normWord" key grab its int
+			printf("%s\n",currWord);
 			if ((currWord == hsearch(wordHash, hashContainsWord, currWord, strlen(currWord)))){
 				((word_t*)currWord)->occurences += 1; // add 1 to the word occurence
+				printf("more than 1 %s",currWord);
 			}
 			else {
 				word_t* newWord;
@@ -76,8 +78,9 @@ int main(void){
 					printf("malloc issue");
 					return 7;
 				}
-				
-				strcpy(newWord->name, currWord);
+				memset(newWord->name, 0,(50*sizeof(newWord->name[0])));
+				//strcpy(newWord->name, currWord);
+				snprintf(newWord->name, 50,"%s", currWord);
 				newWord->occurences=1;
 				hput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
 			}
@@ -86,6 +89,7 @@ int main(void){
 		
 		free(currWord);
 	}
+	hclose(wordHash);
 	webpage_delete(w);
 	fclose(f);
 	printf("%d",total_count);
