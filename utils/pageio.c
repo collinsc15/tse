@@ -42,7 +42,7 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	//	printf("%s", relSavePath);
 	//	fflush(stdout);
 	//char dir[50];
-	snprintf(relSavePath,300,"%s%s%s%ld","../",dirname,"/",id);
+	snprintf(relSavePath,300,"%s%s%s%d","../",dirname,"/",id);
 	//snprintf(dir,50, "../%s",dirname);
 
 	//if the file doesn't exist or the file is readable
@@ -72,14 +72,15 @@ webpage_t *pageload(int id, char *dirname){
 	char path[300] = {0};
 	snprintf(path,300,"%s%s%s%ld","../",dirname,"/",id);
 	FILE *f;
-	char url[100];
+	char *url=(char*) malloc((100)*sizeof(char));
 	if((access(path, F_OK)!=0) || (access(path, W_OK)==0)){
 		f=fopen(path,"r");  //opens/creates our file
-		  if ( f != NULL) { //if we sucessfully open a file                                  
+		  if ( f != NULL) { //if we sucessfully open a file                        
 			 fscanf(f, "%s",url);
 			 printf("%s",url);
 			 fclose(f); //and close the file
 			 webpage_t *w=webpage_new(url,0,NULL);
+			 free(url);
 			 return w;
 			}
 			else {   //      fclose(f); //and close the file
