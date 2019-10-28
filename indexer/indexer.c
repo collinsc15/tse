@@ -17,6 +17,7 @@
 #include <queue.h>                                                             // Function that adds all word occurences in a hash
 static int total_count = 0; // initialize the total_count = 0;
 static int total_obj = 0; // initialize the total_count = 0;
+
 typedef struct doc {
 	char name[50];
 	int occurences;
@@ -24,12 +25,17 @@ typedef struct doc {
 
 typedef struct word {
 	char name[50];
-	queue_t docs;
+	queue_t *docs;
 } word_t;
 
+void add(void *docq){
+	total_count+=((doc_t*)docq)->occurences;
+}
+
 void adderFunc(void* hashWord) {
-  total_count += ((word_t*)hashWord) -> occurences; // add the datA to the totalCount
-	printf("%s:%d\n",((word_t*)hashWord)->name,((word_t*)hashWord)->occurences);
+	qapply(((word_t*)hashWord)->docs,add);
+				 //total_count += ((word_t*)hashWord) -> occurences; // add the datA to the totalCount
+	//printf("%s:%d\n",((word_t*)hashWord)->name,((word_t*)hashWord)->occurences);
 
 }
 
@@ -52,7 +58,7 @@ bool hashContainsWord(void* hashWord, const void* searchWord){
 }
 
 bool queueContainsDoc(void* doc, const void* searchWord){
-	doc_t *obj =(doc_t*)hashWord;
+	doc_t *obj =(doc_t*)doc;
 	//strcpy(h,obj->name);
 	//printf("objectname:%s\n",obj->name);
 	if (!strcmp(obj->name, (char*)searchWord)) {
@@ -79,9 +85,9 @@ void NormalizeWord(char word[]){
 
 
 int main(void){
-	webpage_t *w = pageload(1, "pages");
+	webpage_t *w = pageload(2, "pages");
 	webpage_fetch(w);
-	char *id="1";	 
+	char *id="2";	 
 	
 	//free(webpage_getURL(w));
   //get next word
@@ -92,18 +98,19 @@ int main(void){
 	//chdir("../forIndexer");
 	
 	//FILE *f=fopen("1","a");
-	while ((pos = webpage_getNextWord(w, pos, &currWord)) > 0) {
-		NormalizeWord(currWord);
-    if(strcmp(currWord,"")){
-       // if we can find an element under the "normWord" key grab its int
+	while ((pos = webpage_getNextWord(w, pos, &currWord)) > 0) { //for words in webpage w
+		NormalizeWord(currWord);        //normalize word
+    if(strcmp(currWord,"")){        //run if valid word
 			printf("%s\n",currWord);
 			word_t *e=(word_t*)hsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
-			if ( NULL != e){
-				doc_t *d=(doc_t*)hsearch(wordHash, queueContainsdoc, id, strlen(id));
-				if(d!=NULL){
+			//sees if hash contains word
+			if ( NULL != e){  //if hash contains word
+				doc_t *d=(doc_t*)qsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
+				if(d!=NULL){           //if it does
 					d->occurences += 1; // add 1 to the word occurence
 				}
 				else{
+					doc_t *newDoc;                           //create new doc
 					if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
 						printf("malloc issue");
 						return 7;
@@ -111,12 +118,12 @@ int main(void){
 					memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
 					strcpy(newDoc->name, currWord);
 					newDoc->occurences=1;
-					qput(e->docs,newDoc);
+					qput(e->docs,newDoc);      //put doc in word queue
 				}
 					//printf("more than 1 %s",currWord);
 			}
-			else {
-				word_t* newWord;
+			else {             // if hash does not contain word
+				word_t* newWord;    //creates word
 				if (!(newWord=(word_t*) malloc(sizeof(word_t)))){
 					printf("malloc issue");
 					return 7;
@@ -125,6 +132,7 @@ int main(void){
 				strcpy(newWord->name, currWord);
 				//snprintf(newWord->name, 50,"%s", currWord);
 				newWord->docs=qopen();
+				doc_t *newDoc;     //create doc
 				if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
 						printf("malloc issue");
 						return 7;
@@ -142,12 +150,12 @@ int main(void){
 	}
 	happly(wordHash, adderFunc); // calculate total_count
 	happly(wordHash, addObj);
-	happly(wordHash, delete);
+	//happly(wordHash, delete);
 	hclose(wordHash);
 
 	webpage_delete(w);
 	//fclose(f);
-	printf("%d",total_count);
+	printf("words:%d",total_count);
 	printf("\nobjects:%d",total_obj);
 	return 0;
 }
