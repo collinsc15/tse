@@ -29,7 +29,8 @@ void adderFunc(void* hashWord) {
 
 bool hashContainsWord(void* hashWord, const void* searchWord){
 	word_t *obj =(word_t*)hashWord;
-	if (strcmp(obj->name, searchWord)) {
+	//strcpy(h,obj->name);
+	if (strcmp(obj->name, (char*)searchWord)) {
 		return true;
 	}
   return false;
@@ -55,14 +56,15 @@ void NormalizeWord(char word[]){
 int main(void){
 	webpage_t *w = pageload(1, "pages");
   webpage_fetch(w);
+	//free(webpage_getURL(w));
   //get next word
 	hashtable_t *wordHash = hopen(10000);
   int pos = 0;
 	char *currWord;
   //testing NormalizeWord  
-	chdir("../forIndexer");
-	char* html = webpage_getHTML(w);
-	FILE *f=fopen("1","a");
+	//chdir("../forIndexer");
+	
+	//FILE *f=fopen("1","a");
 	while ((pos = webpage_getNextWord(w, pos, &currWord)) > 0) {
 		NormalizeWord(currWord);
     if(strcmp(currWord,"")){
@@ -91,7 +93,7 @@ int main(void){
 	}
 	hclose(wordHash);
 	webpage_delete(w);
-	fclose(f);
+	//fclose(f);
 	printf("%d",total_count);
 	return 0;
 }
