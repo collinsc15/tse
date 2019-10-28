@@ -84,14 +84,19 @@ void NormalizeWord(char word[]){
 }
 
 
-int main(void){
-	webpage_t *w = pageload(2, "pages");
+int main(int argc, char *argv[]){
+	long int num=atol(argv[1]);
+	printf("%d",num);
+	hashtable_t *wordHash = hopen(100);
+	while (num>0){
+	webpage_t *w = pageload(num, "pages");
 	webpage_fetch(w);
-	char *id="2";	 
+	char id[5];
+	sprintf(id,"%ld",num);
 	
 	//free(webpage_getURL(w));
   //get next word
-	hashtable_t *wordHash = hopen(100);
+	
   int pos = 0;
 	char *currWord;
   //testing NormalizeWord  
@@ -148,12 +153,15 @@ int main(void){
 		
 		free(currWord);
 	}
+	
+	
+	//happly(wordHash, delete);
+	webpage_delete(w);
+	num-=1;
+	}
 	happly(wordHash, adderFunc); // calculate total_count
 	happly(wordHash, addObj);
-	//happly(wordHash, delete);
 	hclose(wordHash);
-
-	webpage_delete(w);
 	//fclose(f);
 	printf("words:%d",total_count);
 	printf("\nobjects:%d",total_obj);
