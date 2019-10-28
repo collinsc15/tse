@@ -13,4 +13,5 @@
 void main(void){
 	webpage_t *w= pageload(1, "pages");
 	pagesave(w,101, "pages");
+	webpage_delete(w);
 }

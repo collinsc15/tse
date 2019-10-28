@@ -17,9 +17,14 @@
 #include <queue.h>                                                             // Function that adds all word occurences in a hash
 static int total_count = 0; // initialize the total_count = 0;
 static int total_obj = 0; // initialize the total_count = 0;
-typedef struct word {
+typedef struct doc {
 	char name[50];
 	int occurences;
+} doc_t;
+
+typedef struct word {
+	char name[50];
+	queue_t docs;
 } word_t;
 
 void adderFunc(void* hashWord) {
@@ -38,6 +43,16 @@ void addObj(void* hashWord){
 
 bool hashContainsWord(void* hashWord, const void* searchWord){
 	word_t *obj =(word_t*)hashWord;
+	//strcpy(h,obj->name);
+	//printf("objectname:%s\n",obj->name);
+	if (!strcmp(obj->name, (char*)searchWord)) {
+		return true;
+	}
+  return false;
+}
+
+bool queueContainsDoc(void* doc, const void* searchWord){
+	doc_t *obj =(doc_t*)hashWord;
 	//strcpy(h,obj->name);
 	//printf("objectname:%s\n",obj->name);
 	if (!strcmp(obj->name, (char*)searchWord)) {
@@ -66,7 +81,7 @@ void NormalizeWord(char word[]){
 int main(void){
 	webpage_t *w = pageload(1, "pages");
 	webpage_fetch(w);
-		 
+	char *id="1";	 
 	
 	//free(webpage_getURL(w));
   //get next word
@@ -84,8 +99,21 @@ int main(void){
 			printf("%s\n",currWord);
 			word_t *e=(word_t*)hsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
 			if ( NULL != e){
-				e->occurences += 1; // add 1 to the word occurence
-				//printf("more than 1 %s",currWord);
+				doc_t *d=(doc_t*)hsearch(wordHash, queueContainsdoc, id, strlen(id));
+				if(d!=NULL){
+					d->occurences += 1; // add 1 to the word occurence
+				}
+				else{
+					if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
+						printf("malloc issue");
+						return 7;
+					}
+					memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
+					strcpy(newDoc->name, currWord);
+					newDoc->occurences=1;
+					qput(e->docs,newDoc);
+				}
+					//printf("more than 1 %s",currWord);
 			}
 			else {
 				word_t* newWord;
@@ -96,7 +124,14 @@ int main(void){
 				memset(newWord->name, 0,(50*sizeof(newWord->name[0])));
 				strcpy(newWord->name, currWord);
 				//snprintf(newWord->name, 50,"%s", currWord);
-				newWord->occurences=1;
+				newWord->docs=qopen();
+				if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
+						printf("malloc issue");
+						return 7;
+				}
+				strcpy(newDoc->name, currWord);
+				newDoc->occurences=1;
+				qput(newWord->docs,newDoc);
 				hput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
 				//free(newWord);
 			}
