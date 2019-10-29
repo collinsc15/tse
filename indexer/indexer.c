@@ -96,6 +96,10 @@ void NormalizeWord(char word[]){
 
 
 int main(int argc, char *argv[]){
+	if (argc != 2){
+		printf("usage: indexer <id>\n");
+		exit(EXIT_FAILURE);
+	}
 	long int num=atol(argv[1]);
 	printf("%d",num);
 	hashtable_t *wordHash = hopen(100);
