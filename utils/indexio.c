@@ -20,6 +20,8 @@
 #include <sys/stat.h>
 #include <indexio.h>
 
+#define MAXCHAR 1000
+
 int32_t indexsave(hash_t* index, char *indexnm, char *dirname)
 {
 
@@ -28,6 +30,24 @@ int32_t indexsave(hash_t* index, char *indexnm, char *dirname)
 
 index_t indexload(char *indexnm, char *dirname)
 {
-char accessPath[150] = {0};
-
+	char str[MAXCHAR];
+	char word[50];
+	char accessPath[150] = {0};
+	hashtable_t* newHash;
+ 
+	sprintf(accessPath,"%s%s",dirnmane, indexnm);
+	FILE *f = fopen(accessPath, "r");
+	if (f != NULL)
+		{
+			while((fgets(str, MAXCHAR, f)))
+				{
+					char *ptr = strtok(str, " ");
+					hput(newHash, *ptr, *ptr, strlen(prt));
+					while(ptr != NULL)
+						{
+							ptr = strtok(str, " ");
+							
+							
+							
+					
 }
