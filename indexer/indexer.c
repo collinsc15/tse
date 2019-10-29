@@ -1,5 +1,5 @@
 /* indexer.c --- 
- * 
+1;5202;0c * 
  * 
  * Author: Claire C. Collins
  * Created: Sun Oct 27 18:39:02 2019 (-0400)
@@ -17,6 +17,7 @@
 #include <queue.h>                                                             // Function that adds all word occurences in a hash
 static int total_count = 0; // initialize the total_count = 0;
 static int total_obj = 0; // initialize the total_count = 0;
+static FILE *hashFile;
 
 typedef struct doc {
 	char name[50];
@@ -39,14 +40,14 @@ void adderFunc(void* hashWord) {
 }
 
 void docSprintf(void *doc){ 
-  printf(" ID:%s",((doc_t*)doc)->name); 
-  printf(" Count:%d",((doc_t*)doc)->occurences); 
+  fprintf(hashFile," %s",((doc_t*)doc)->name); 
+  fprintf(hashFile," %d ",((doc_t*)doc)->occurences); 
 }
 
 void indexSprintf(void* hashWord){
-  printf("Word:%s",((word_t*)hashWord)->name);  
+  fprintf(hashFile,"%s",((word_t*)hashWord)->name);  
   qapply(((word_t*)hashWord)->docs, docSprintf); 
-  printf("\n");                                                                                                                                                                                                                                                                   
+  fprintf(hashFile,"\n");                                                                                                                                                                                                                                                                   
 }
 
 
@@ -96,21 +97,38 @@ void NormalizeWord(char word[]){
 
 
 int main(int argc, char *argv[]){
-	if (argc != 2){
+	if (argc != 3){
 		printf("usage: indexer <id>\n");
 		exit(EXIT_FAILURE);
 	}
-	long int num=atol(argv[1]);
-	printf("%d",num);
+	//long int num=atol(argv[1]);
+	//printf("%d",num);
 	hashtable_t *wordHash = hopen(100);
-	while (num>0){
-	webpage_t *w = pageload(num, "pages");
-	webpage_fetch(w);
-	char id[5];
-	sprintf(id,"%ld",num);
+	char* loadDir = (char*)malloc(100*sizeof(char));
+	char* saveDir = "./indexes/";
+
+	char* nameOfFile = (char*)malloc(100*sizeof(char));
+	strcpy(nameOfFile, argv[2]); // NEED TO : change 3 to 2
+
+	char fullSave[100] = {0};
+	sprintf(fullSave,"%s%s",saveDir,nameOfFile);
+	strcpy(loadDir, argv[1]); // NEED TO: change 2 to 1
+
+	int num = 1;
+	webpage_t* w;
+	while ((w = pageload(num, loadDir))){
+		
+		num+=1;
+		webpage_fetch(w);
+		char id[5];
+		sprintf(id,"%d",num);
+	
+	
+
 	
 	//free(webpage_getURL(w));
   //get next word
+	
 	
   int pos = 0;
 	char *currWord;
@@ -174,13 +192,18 @@ int main(int argc, char *argv[]){
 	
 	
 	webpage_delete(w);
-	num-=1;
 	}
 	happly(wordHash, adderFunc); // calculate total_count
-	happly(wordHash, addObj);		
-	happly(wordHash, indexSprintf);
+	happly(wordHash, addObj);
+	hashFile = fopen(fullSave,"w");
+	if (hashFile){
+		happly(wordHash, indexSprintf);
+		fclose(hashFile);
+	}
 	happly(wordHash, closeThoseDamnQueues);
 	hclose(wordHash);
+	free(nameOfFile);
+	free(loadDir);
 	//fclose(f);
 	printf("words:%d",total_count);
 	printf("\nobjects:%d",total_obj);
