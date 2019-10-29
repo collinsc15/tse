@@ -39,12 +39,12 @@ void adderFunc(void* hashWord) {
 }
 
 void docSprintf(void *doc){ 
-  printf(" %s",((doc_t*)doc)->name); 
-  printf(" %d",((doc_t*)doc)->occurences); 
+  printf(" ID:%s",((doc_t*)doc)->name); 
+  printf(" Count:%d",((doc_t*)doc)->occurences); 
 }
 
 void indexSprintf(void* hashWord){
-  printf("%s",((word_t*)hashWord)->name);  
+  printf("Word:%s",((word_t*)hashWord)->name);  
   qapply(((word_t*)hashWord)->docs, docSprintf); 
   printf("\n");                                                                                                                                                                                                                                                                   
 }
@@ -115,11 +115,13 @@ int main(int argc, char *argv[]){
 	
 	//FILE *f=fopen("1","a");
 	while ((pos = webpage_getNextWord(w, pos, &currWord)) > 0) { //for words in webpage w
+		
 		NormalizeWord(currWord);        //normalize word
     if(strcmp(currWord,"")){        //run if valid word
 			printf("%s\n",currWord);
 			word_t *e=(word_t*)hsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
 			//sees if hash contains word
+			
 			if (e){  //if hash contains word
 				doc_t *d=(doc_t*)qsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
 				if(d!=NULL){           //if it does
@@ -132,7 +134,7 @@ int main(int argc, char *argv[]){
 						return 7;
 					}
 					memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
-					strcpy(newDoc->name, currWord);
+					strcpy(newDoc->name, id);
 					newDoc->occurences=1;
 					qput(e->docs,newDoc);      //put doc in word queue
 				}
@@ -153,7 +155,7 @@ int main(int argc, char *argv[]){
 						printf("malloc issue");
 						return 7;
 				}
-				strcpy(newDoc->name, currWord);
+				strcpy(newDoc->name, id);
 				newDoc->occurences=1;
 				qput(newWord->docs,newDoc);
 				hput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
