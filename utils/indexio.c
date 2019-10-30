@@ -27,7 +27,7 @@ static FILE *f;
 typedef struct doc
 {
   char name[50];   
-  int occurences; 
+  int occurences;	
 } doc_t;
 
 typedef struct word
@@ -100,17 +100,24 @@ hashtable_t* indexload(char *indexnm, char *dirname)
 					newWord -> docs = qopen();
 					
 					hput(newHash, (void*)newWord, (const char*)newWord, strlen(newWord->name));
-					while(ptr != NULL)
+					while(ptr)
 						{
-							doc_t* newDoc;                                                                                                           
+							doc_t* newDoc;
+							char* end;
 							newDoc = (doc_t*)malloc(sizeof(doc_t));
 							
 							ptr = strtok(NULL, " ");
-							strcpy(newDoc->name, ptr);
+							if (ptr)
+								{
+									strcpy(newDoc->name, ptr);
+								}
 							
 							ptr = strtok(NULL, " ");
-							newDoc->occurences = (int)ptr;
+							if (ptr)
+								{
+							newDoc->occurences = strtol(ptr,&end,10);
 							qput(newWord->docs,newDoc);
+								}
 						}
 				}
 		}
