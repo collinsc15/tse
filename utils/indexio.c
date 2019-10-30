@@ -105,10 +105,10 @@ hashtable_t* indexload(char *indexnm, char *dirname)
 							doc_t* newDoc;                                                                                                           
 							newDoc = (doc_t*)malloc(sizeof(doc_t));
 							
-							ptr = strtok(str, " ");
+							ptr = strtok(NULL, " ");
 							strcpy(newDoc->name, ptr);
 							
-							ptr = strtok(str, " ");
+							ptr = strtok(NULL, " ");
 							newDoc->occurences = (int)ptr;
 							qput(newWord->docs,newDoc);
 						}
