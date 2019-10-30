@@ -52,19 +52,22 @@ void closeInternalQueues(void* hashWord)
 }
 
 void docSprintf(void *doc){
-  fprintf(hashFile," %s",((doc_t*)doc)->name);
-  fprintf(hashFile," %d ",((doc_t*)doc)->occurences);  
+  fprintf(f," %s",((doc_t*)doc)->name);
+  fprintf(f," %d ",((doc_t*)doc)->occurences);  
 }
 
 void indexSprintf(void* hashWord)
 { 
-  fprintf(hashFile,"%s",((word_t*)hashWord)->name);
+  fprintf(f,"%s",((word_t*)hashWord)->name);
   qapply(((word_t*)hashWord)->docs, docSprintf);
-  fprintf(hashFile,"\n"); 
+  fprintf(f,"\n"); 
 } 
 
 int32_t indexsave(hash_t* index, char *indexnm, char *dirname)
-{
+{                                                                                                      
+  char fullSave[100] = {0};                                                     
+  sprintf(fullSave,"../%s/%s",dirname,indexnm);    
+	FILE *f = fopen(fullSave, "w");
 	if (index)
 		{ 
     happly(wordHash, indexSprintf);
@@ -72,6 +75,7 @@ int32_t indexsave(hash_t* index, char *indexnm, char *dirname)
 		}
 	happly(wordHash, closeInternalQueues); 
   hclose(wordHash);
+	return 0;
 }
 
 index_t indexload(char *indexnm, char *dirname)
@@ -81,7 +85,7 @@ index_t indexload(char *indexnm, char *dirname)
 	char accessPath[150] = {0};
 	hashtable_t* newHash;
  
-	sprintf(accessPath,"%s%s",dirnmane, indexnm);
+	sprintf(accessPath,"../%s/%s",dirnmane, indexnm);
 	FILE *f = fopen(accessPath, "r");
 	if (f != NULL)
 		{
