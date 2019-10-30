@@ -105,7 +105,7 @@ int main(int argc, char *argv[]){
 	//printf("%d",num);
 	hashtable_t *wordHash = hopen(100);
 	char* loadDir = (char*)malloc(100*sizeof(char));
-	char* saveDir = "./indexes/";
+	char* saveDir = "../indexes/";
 
 	char* nameOfFile = (char*)malloc(100*sizeof(char));
 	strcpy(nameOfFile, argv[2]); // NEED TO : change 3 to 2
@@ -117,82 +117,63 @@ int main(int argc, char *argv[]){
 	int num = 1;
 	webpage_t* w;
 	while ((w = pageload(num, loadDir))){
-		
 		num+=1;
 		webpage_fetch(w);
 		char id[5];
 		sprintf(id,"%d",num);
-	
-	
-
-	
-	//free(webpage_getURL(w));
-  //get next word
-	
-	
-  int pos = 0;
-	char *currWord;
-  //testing NormalizeWord  
-	//chdir("../forIndexer");
-	
-	//FILE *f=fopen("1","a");
-	while ((pos = webpage_getNextWord(w, pos, &currWord)) > 0) { //for words in webpage w
+		int pos = 0;
+		char *currWord;
+  
+		while ((pos = webpage_getNextWord(w, pos, &currWord)) > 0) { //for words in webpage w
 		
-		NormalizeWord(currWord);        //normalize word
-    if(strcmp(currWord,"")){        //run if valid word
-			printf("%s\n",currWord);
-			word_t *e=(word_t*)hsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
+			NormalizeWord(currWord);        //normalize word
+			if(strcmp(currWord,"")){        //run if valid word
+				printf("%s\n",currWord);
+				word_t *e=(word_t*)hsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
 			//sees if hash contains word
-			
-			if (e){  //if hash contains word
-				doc_t *d=(doc_t*)qsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
-				if(d!=NULL){           //if it does
-					d->occurences += 1; // add 1 to the word occurence
+				
+				if (e){  //if hash contains word
+					doc_t *d=(doc_t*)qsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
+					if(d!=NULL){           //if it does
+						d->occurences += 1; // add 1 to the word occurence
+					}
+					else{
+						doc_t *newDoc;                           //create new doc
+						if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
+							printf("malloc issue");
+							return 7;
+					}
+						memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
+						strcpy(newDoc->name, id);
+						newDoc->occurences=1;
+						qput(e->docs,newDoc);      //put doc in word queue
+					}
 				}
-				else{
-					doc_t *newDoc;                           //create new doc
+				else {             // if hash does not contain word
+					word_t* newWord;    //creates word
+					if (!(newWord=(word_t*) malloc(sizeof(word_t)))){
+						printf("malloc issue");
+						return 7;
+					}
+					memset(newWord->name, 0,(50*sizeof(newWord->name[0])));
+					strcpy(newWord->name, currWord);
+					newWord->docs=qopen();
+					doc_t *newDoc;     //create doc
 					if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
 						printf("malloc issue");
 						return 7;
 					}
-					memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
 					strcpy(newDoc->name, id);
 					newDoc->occurences=1;
-					qput(e->docs,newDoc);      //put doc in word queue
-				}
-					//printf("more than 1 %s",currWord);
-			}
-			else {             // if hash does not contain word
-				word_t* newWord;    //creates word
-				if (!(newWord=(word_t*) malloc(sizeof(word_t)))){
-					printf("malloc issue");
-					return 7;
-				}
-				memset(newWord->name, 0,(50*sizeof(newWord->name[0])));
-				strcpy(newWord->name, currWord);
-				//snprintf(newWord->name, 50,"%s", currWord);
-				newWord->docs=qopen();
-				doc_t *newDoc;     //create doc
-				if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
-						printf("malloc issue");
-						return 7;
-				}
-				strcpy(newDoc->name, id);
-				newDoc->occurences=1;
-				qput(newWord->docs,newDoc);
-				hput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
-				//free(newWord);
-			}
-			
-		}  
-		
-		free(currWord);
-	}
-	
-	
-	
+					qput(newWord->docs,newDoc);
+					hput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
+				}		
+			}  
+			free(currWord);
+		}
 	webpage_delete(w);
 	}
+	//webpage_delete(w);
 	happly(wordHash, adderFunc); // calculate total_count
 	happly(wordHash, addObj);
 	hashFile = fopen(fullSave,"w");
