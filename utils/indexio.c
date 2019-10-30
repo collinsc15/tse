@@ -1,5 +1,5 @@
 /* indexio.c --- 
- * 
+1;5202;0c * 
  * 
  * Author: Vlado Vojdanovski
  * Created: Thu Oct 24 16:59:51 2019 (-0400)
@@ -21,7 +21,7 @@
 #include <indexio.h>
 
 #define MAXCHAR 1000
-
+static FILE *f;
 
 
 typedef struct doc
@@ -63,31 +63,30 @@ void indexSprintf(void* hashWord)
   fprintf(f,"\n"); 
 } 
 
-int32_t indexsave(hash_t* index, char *indexnm, char *dirname)
+int32_t indexsave(hashtable_t* index, char *indexnm, char *dirname)
 {                                                                                                      
   char fullSave[100] = {0};                                                     
   sprintf(fullSave,"../%s/%s",dirname,indexnm);    
-	FILE *f = fopen(fullSave, "w");
+	f = fopen(fullSave, "w");
 	if (index)
 		{ 
-    happly(wordHash, indexSprintf);
-    fclose(hashFile);                                                                                                                   
+    happly(index, indexSprintf);
+    fclose(f);                                                                                                                   
 		}
-	happly(wordHash, closeInternalQueues); 
-  hclose(wordHash);
+	happly(index, closeInternalQueues); 
+  hclose(index);
 	return 0;
 }
 
-index_t indexload(char *indexnm, char *dirname)
+hashtable_t* indexload(char *indexnm, char *dirname)
 {
 	char str[MAXCHAR];
-	char word[50];
 	char accessPath[150] = {0};
-	hashtable_t* newHash;
+	hashtable_t* newHash = hopen(100);
  
-	sprintf(accessPath,"../%s/%s",dirnmane, indexnm);
+	sprintf(accessPath,"../%s/%s",dirname, indexnm);
 	FILE *f = fopen(accessPath, "r");
-	if (f != NULL)
+	if (f)
 		{
 			while((fgets(str, MAXCHAR, f)))
 				{
@@ -98,19 +97,19 @@ index_t indexload(char *indexnm, char *dirname)
           newWord=(word_t*) malloc(sizeof(word_t));  
           memset(newWord->name, 0,(50*sizeof(newWord->name[0])));                                                                       
           strcpy(newWord->name, ptr);     
-					newWord -> doc = qopen();
+					newWord -> docs = qopen();
 					
-					hput(newHash, newWord, newWord, strlen(newWord);
+					hput(newHash, (void*)newWord, (const char*)newWord, strlen(newWord->name));
 					while(ptr != NULL)
 						{
-							doc_t *newDoc;                                                                                                           
+							doc_t* newDoc;                                                                                                           
 							newDoc = (doc_t*)malloc(sizeof(doc_t));
 							
 							ptr = strtok(str, " ");
 							strcpy(newDoc->name, ptr);
 							
 							ptr = strtok(str, " ");
-							strcpy(newDoc->occurences, ptr);
+							newDoc->occurences = (int)ptr;
 							qput(newWord->docs,newDoc);
 						}
 				}
