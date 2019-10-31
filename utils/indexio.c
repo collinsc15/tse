@@ -101,22 +101,30 @@ hashtable_t* indexload(char *indexnm, char *dirname)
 						{
 							doc_t* newDoc;
 							char* end;
+							//strcpy(newDoc -> name, "NULL");
+							//newDoc -> occurences = 0;
 							newDoc = (doc_t*)malloc(sizeof(doc_t));
-	
+							
 							ptr = strtok(NULL, " ");
 							if (ptr)
-								{
+								{		
+									
 									strcpy(newDoc->name, ptr);
 								}
 							
 							ptr = strtok(NULL, " ");
 							if (ptr)
 								{
+									qput(newWord->docs,newDoc);
 									newDoc->occurences = strtol(ptr,&end,10);
-									
 									//free(newDoc);
 								}
-							qput(newWord->docs,newDoc);
+							else
+								{
+									free(newDoc);
+								}
+							
+							
 						}
 				 hput(newHash, (void*)newWord, (const char*)newWord, strlen(newWord->name));
 				}
