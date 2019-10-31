@@ -21,9 +21,9 @@
 #include <webpage.h> 
 #include <indexio.h>
 
-void main(void)
+int32_t main(void)
 {
-  hashtable_t *w= indexload("BillClinton", "indexes");  
+  hashtable_t *w= indexload("indexes", "indexes");  
 	indexsave(w,"BillClinton2", "indexes");
 	exit(EXIT_SUCCESS);
 }    
