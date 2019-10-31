@@ -23,7 +23,14 @@
 
 int32_t main(void)
 {
-  hashtable_t *w= indexload("indexes", "indexes");  
-	indexsave(w,"BillClinton2", "indexes");
-	exit(EXIT_SUCCESS);
+   hashtable_t *w= indexload("BilldawdawdClinton", "indexes");
+  if (w)
+    {
+      indexsave(w,"BillClinton2", "indexes");
+    }
+  w  = indexload("BillClinton", "indexes");
+  if (w)
+    {
+      indexsave(w,"BillClinton2", "indexes");
+    }
 }    
