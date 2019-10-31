@@ -48,7 +48,7 @@ bool hashContainsWord(void* hashWord, const void* searchWord)
 
 void closeInternalQueues(void* hashWord)
 {    
-  qclose(((word_t*)hashWord)->docs);
+  qclose((((word_t*)hashWord)->docs));
 }
 
 void docSprintf(void *doc){
@@ -91,21 +91,18 @@ hashtable_t* indexload(char *indexnm, char *dirname)
 			while((fgets(str, MAXCHAR, f)))
 				{
 					char *ptr = strtok(str, " ");
-
-					word_t* newWord;    //creates word
-					
+					word_t* newWord;    //creates word				
           newWord=(word_t*) malloc(sizeof(word_t));  
           memset(newWord->name, 0,(50*sizeof(newWord->name[0])));                                                                       
-          strcpy(newWord->name, ptr);     
+          strcpy(newWord->name, ptr);
 					newWord -> docs = qopen();
-					
-					hput(newHash, (void*)newWord, (const char*)newWord, strlen(newWord->name));
+										
 					while(ptr)
 						{
 							doc_t* newDoc;
 							char* end;
 							newDoc = (doc_t*)malloc(sizeof(doc_t));
-							
+	
 							ptr = strtok(NULL, " ");
 							if (ptr)
 								{
@@ -115,13 +112,17 @@ hashtable_t* indexload(char *indexnm, char *dirname)
 							ptr = strtok(NULL, " ");
 							if (ptr)
 								{
-							newDoc->occurences = strtol(ptr,&end,10);
-							qput(newWord->docs,newDoc);
+									newDoc->occurences = strtol(ptr,&end,10);
+									
+									//free(newDoc);
 								}
+							qput(newWord->docs,newDoc);
 						}
+				 hput(newHash, (void*)newWord, (const char*)newWord, strlen(newWord->name));
 				}
 		}
-			return newHash;
+	fclose(f);
+	return newHash;
 }
 
 
