@@ -84,7 +84,10 @@ webpage_t *pageload(int id, char *dirname){
 			 return w;
 			}
 			else {   //      fclose(f); //and close the file
+				free(url);
 				return NULL; //function exit failure
-			}                                                                                      }
+			}
+	}
+	free(url);
 	return NULL;
 }                                                                                    

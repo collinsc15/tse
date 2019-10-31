@@ -98,7 +98,7 @@ void NormalizeWord(char word[]){
 
 int main(int argc, char *argv[]){
 	if (argc != 3){
-		printf("usage: indexer <id>\n");
+		printf("usage: indexer <pagedir> <indexnm>\n");
 		exit(EXIT_FAILURE);
 	}
 	//long int num=atol(argv[1]);
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]){
 	int num = 1;
 	webpage_t* w;
 	while ((w = pageload(num, loadDir))){
-		num+=1;
+		
 		webpage_fetch(w);
 		char id[5];
 		sprintf(id,"%d",num);
@@ -168,11 +168,17 @@ int main(int argc, char *argv[]){
 					qput(newWord->docs,newDoc);
 					hput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
 				}		
-			}  
+			}
+			//printf("w:%d",sizeof(webpage_t));
+			
 			free(currWord);
 		}
-	webpage_delete(w);
+		//free(webpage_getURL(w));
+		webpage_delete(w);
+		num+=1;
+	//free(currWord);
 	}
+	
 	//webpage_delete(w);
 	happly(wordHash, adderFunc); // calculate total_count
 	happly(wordHash, addObj);
