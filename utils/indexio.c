@@ -86,6 +86,12 @@ hashtable_t* indexload(char *indexnm, char *dirname)
  
 	sprintf(accessPath,"../%s/%s",dirname, indexnm);
 	FILE *f = fopen(accessPath, "r");
+	if (!f)
+  	       {
+      		 hclose(newHash);
+     		 return NULL;
+  	       }
+
 	if (f)
 		{
 			while((fgets(str, MAXCHAR, f)))
