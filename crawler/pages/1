@@ -1,0 +1,66 @@
+icon Engs50 (CS50)[Labs] [Notes] [Reading] [Resources] [Examples]
+Reading assignments
+Week 1
+Unix shell and commands
+
+Choose your tools well by Giovanni Asproni
+Learn to use a real editor by Diomidis Spinellis
+Basics of the Unix Philosophy (just a few pages), a subset of chapter 1 of The Art of Unix Programming, by Eric S. Raymond.
+The Strange Birth and Long Life of Unix, by Warren Toomey  IEEE Spectrum 2011
+Interview with Doug McIlroy, by Rik Farrow  ;login 2016
+Optional
+
+MINIX retrospective, by Andrew Tanenbaum, a professor who created MINIX, and whose student Linus Torvalds created Linux.
+Week 2
+shell and C programming
+
+CS50 coding style guidelines.
+The Unix tools are your friends by Diomidis Spinellis
+The professional programmer by Uncle Bob
+Know how to use command line tools by Carroll Robinson
+Comment only what the code cannot say by Kevlin Henney
+Lecture notes and any lecture extras associated with this weeks lectures.
+Week 3
+C programming, memory allocation, data structures
+
+CS50 coding style guidelines.
+Dont Just Learn the Language, Understand its Culture, by Anders Norås
+Comments on Comments, Cal Evans
+Take Advantage of Code Analysis Tools, by Sarah Mount
+Lecture notes and any lecture extras associated with this weeks lectures.
+Week 4
+Web searching
+
+Skim Searching the Web, by Arasu, et.al. This paper provides a foundation for the TinySearchEngine assignments (Labs 4-6).
+Prevent errors, by Giles Colborne
+Use the right algorithm and data structure, by J.C. van Winkel
+Write small functions using examples, by Keith Braithwaite.
+The Linker Is not a Magical Program, by Walter Bright.
+Lecture notes and any lecture extras associated with this weeks lectures.
+Week 5
+Software design, testing, debugging
+
+Fighting Bugs: Remove, Retry, Replicate, and Rejuvenate, by Grottke and Trivedi.
+Code in the Language of the Domain, by Dan North.
+Dont Be Afraid to Break Things, by Mike Lewis.
+Finish skimming Searching the Web, by Arasu, et al.
+Lecture notes and any lecture extras associated with this weeks lectures.
+Week 6
+Coding; TSE indexer
+
+Verbose Logging Will Disturb Your Sleep, by Johannes Brodwall
+Code Layout Matters, by Steve Freeman.
+Only the Code Tells the Truth, by Peter Sommerlad.
+Section 4 of Searching the Web, by Arasu, et al.
+Lecture notes and any lecture extras associated with this weeks lectures.
+Week 7
+Testing; Networking
+
+Berkeley sockets, on Wikipedia.
+Dont ignore that error, by Pete Goodliffe.
+Keep the build clean, by Johannes Brodwall.
+Lecture notes and any lecture extras associated with this weeks lectures.
+Engs50 (CS50) -- Dartmouth College
+This version of the course is based upon those designed by Professors Palmer, Kotz, Zhou, Campbell, and Balkcom. I am deeply indebted to these outstanding educators. -- Stephen Taylor
+
+This page was last updated on 2018-10-10 at 18:07.
