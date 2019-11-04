@@ -11,7 +11,7 @@ int main(int argc, const char **argv) {
 	char input[100];
 	printf(">");
 	fgets(input, 100, stdin);
-	while(strcmp(input, "quit\n") != 0){
+	while(strcmp(input, "quit\n") !=0){
 	valid = 0;
 	//clear new line 
 	input[strlen(input) -1] = '\0';
@@ -32,6 +32,11 @@ int main(int argc, const char **argv) {
 		}
 		
 	}
+	
+	if (strlen(input)==0){
+		valid = 1;
+ }
+	//printf("%d",strlen(input));
 	if(valid == 0){
 		printf("%s\n", result);
 	}
