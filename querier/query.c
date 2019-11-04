@@ -33,7 +33,7 @@ int main(int argc, const char **argv) {
 	printf(">");
 	fgets(input, 100, stdin);
 	//chdir("../indexes");
-	words =indexload("indexes","indexes");
+	words =indexload("depth0","indexes");
 	
 	while(strcmp(input, "quit\n") !=0){
 		valid = 0;
@@ -60,49 +60,34 @@ int main(int argc, const char **argv) {
 		}
 		
 		if(valid == 0){
-			//f=fopen("indexes","r");
-			//words=qopen();
-			//int x = 0;
-			//for(i=0;i<strlen(result); i++){
-				//char *word=(char*)malloc(sizeof(char)*51);
-				//char word[50];
-				
-				//int n =0;
-				//while(result[i]!=' '){
-			//word[n]=result[i];
-			//	n+=1;
-			//	i+=1;
-			//}
 			char *word;
 			word=strtok(result, " ");
+			int rank =100000000;
 			while(word!=NULL){
 				char searched[50];
 				memset(searched, '\0', sizeof(char)*50);
 				if(strlen(word)>2){
-					printf("%s\n",word);
+					//printf("%s\n",word);
 					//while(fscanf(f,"%s%*[^\n]",searched)==1){
-					if (hsearch(words,hWord,word,strlen(word))){
-							printf("found");
-	
+					word_t *w=(word_t*)hsearch(words,hWord,word,strlen(word));
+					if (w){
+						//printf("found");
+						doc_t *d=(doc_t*)qget(w->docs);
+						if (d){
+							int amount = d->occurences;
+							printf("%s:%d ",word,amount);
 							fflush(stdout);
+						
+						if (amount<rank){
+							rank=amount;
 						}
-						//}
-					//strcpy(ws[x],word);
-					//ws[x]=word;
-					//x+=1;
-					//qput(words, word);
-					
+						}
+					}
 				}
-				word=strtok(NULL," ");
+				word=strtok(NULL," ");	
 			}
-		//}
-		//char *w=qget(words);
-		//i =0;
-			//	while(w!=NULL){
-			//	pr//intf("%s\n",w);
-						//	i+=1;
-			//	w=qget(words);
-			//	fclose(f);
+			
+			printf("--%d",rank);
 		}
 		
 		//printf("%d",strlen(input));
