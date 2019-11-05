@@ -62,7 +62,7 @@ int main(int argc, const char **argv) {
 		if(valid == 0){
 			char *word;
 			word=strtok(result, " ");
-			int rank =100000000;
+			int rank=NULL;
 			while(word!=NULL){
 				char searched[50];
 				memset(searched, '\0', sizeof(char)*50);
@@ -72,22 +72,23 @@ int main(int argc, const char **argv) {
 					word_t *w=(word_t*)hsearch(words,hWord,word,strlen(word));
 					if (w){
 						//printf("found");
-						doc_t *d=(doc_t*)qget(w->docs);
-						if (d){
-							int amount = d->occurences;
-							printf("%s:%d ",word,amount);
-							fflush(stdout);
-						
-						if (amount<rank){
-							rank=amount;
-						}
+						if(strcmp(w->name,"and")!=0){
+							doc_t *d=(doc_t*)qget(w->docs);
+							if (d){
+								int amount = d->occurences;
+								printf("%s:%d ",word,amount);
+								fflush(stdout);
+								if ((rank==NULL) || (amount<rank)){
+									rank=amount;
+								}
+							}
 						}
 					}
 				}
 				word=strtok(NULL," ");	
 			}
 			
-			printf("--%d",rank);
+			printf("-%d",rank);
 		}
 		
 		//printf("%d",strlen(input));
