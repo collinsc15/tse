@@ -14,7 +14,12 @@ typedef struct doc {
 typedef struct word {                                                                                                                                                                 
   char name[50];                                                                                                                                                                      
   queue_t *docs;                                                                                                                                                                      
-} word_t; 
+} word_t;
+typedef struct rankedDoc{
+	int rank;
+	char id[20];
+	char url[30];
+} rank_t;
 bool hWord(void* hashWord, const void* searchWord){                                                                                                                        
   word_t *obj =(word_t*)hashWord;                                                                                                                                                     
   //strcpy(h,obj->name);                                                                                                                                                              
@@ -29,12 +34,12 @@ int main(int argc, const char **argv) {
 	char result[100];
 	char input[100];
 	hashtable_t *words;
-	char *ws[100];
+	hashtable_t *ranked;
 	printf(">");
 	fgets(input, 100, stdin);
 	//chdir("../indexes");
 	words =indexload("depth0","indexes");
-	
+	ranked=hopen();
 	while(strcmp(input, "quit\n") !=0){
 		valid = 0;
 		//clear new line 
@@ -74,12 +79,15 @@ int main(int argc, const char **argv) {
 						//printf("found");
 						if(strcmp(w->name,"and")!=0){
 							doc_t *d=(doc_t*)qget(w->docs);
-							if (d){
-								int amount = d->occurences;
-								printf("%s:%d ",word,amount);
-								fflush(stdout);
-								if ((rank==NULL) || (amount<rank)){
-									rank=amount;
+							while(d){
+								rank_t *r=(rank_t *) hsearch(ranked, hWord, d->name, strlen(d->name));
+								if (r){
+									int amount = d->occurences;
+									printf("%s:%d ",word,amount);
+									fflush(stdout);
+									if ((r->rank==NULL) || (amount<r->rank)){
+										rank=amount;
+									}
 								}
 							}
 						}
@@ -93,6 +101,7 @@ int main(int argc, const char **argv) {
 		
 		//printf("%d",strlen(input));
 		hclose(words);
+		hclose(ranked);
 		memset(result, '\0', sizeof(char)*100);
 		printf(">");
 		fgets(input, 100, stdin);
