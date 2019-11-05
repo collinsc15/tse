@@ -92,7 +92,7 @@ int main(int argc, const char **argv) {
 		}
 		
 		//printf("%d",strlen(input));
-		
+		hclose(words);
 		memset(result, '\0', sizeof(char)*100);
 		printf(">");
 		fgets(input, 100, stdin);
