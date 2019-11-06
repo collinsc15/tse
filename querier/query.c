@@ -18,7 +18,7 @@ typedef struct word {
 typedef struct rankedDoc{
 	int rank;
 	char id[20];
-	char url[30];
+	char url[50];
 } rank_t;
 bool hWord(void* hashWord, const void* searchWord){
   word_t *obj =(word_t*)hashWord;
@@ -38,7 +38,7 @@ bool hRank(void* rank, const void* searchWord){
 
 void printR(void *r){
 	rank_t *rank=(rank_t*)r;
-	printf("%s:%d", rank->id,rank->rank);
+	printf("Rank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
 	fflush(stdout);
 }
 
@@ -55,7 +55,7 @@ int main(int argc, const char **argv) {
 	
 	while(strcmp(input, "quit\n") !=0){
 		valid = 0;
-		words =indexload("depth0","indexes");
+		words =indexload("depth1","indexes");
 		ranked=hopen(100);
 		//clear new line 
 		input[strlen(input) -1] = '\0';
@@ -89,7 +89,7 @@ int main(int argc, const char **argv) {
 			//int rank=NULL;
 			while(word!=NULL){
 				char searched[50];
-				memset(searched, '\0', sizeof(char)*50);
+				//memset(searched, '\0', sizeof(char)*50);
 				if(strlen(word)>2){
 					//printf("%s\n",word);
 					//while(fscanf(f,"%s%*[^\n]",searched)==1){
@@ -111,6 +111,10 @@ int main(int argc, const char **argv) {
 								else{
 									rank_t *newRanked;
 									newRanked = (rank_t *)malloc(sizeof(rank_t));
+									chdir("../FQc");
+									FILE *f=fopen(d->name,"r");
+									fscanf(f,"%s",newRanked->url);
+									fclose(f);
 									newRanked->rank = d->occurences;
 									strcpy(newRanked->id, d->name);
 									hput(ranked, newRanked, d->name, strlen(d->name));
@@ -123,15 +127,14 @@ int main(int argc, const char **argv) {
 				}
 				word=strtok(NULL," ");	
 			}
-			
+			hclose(words);
+			hclose(ranked);
 		}
 		
 		//printf("made it through");
 		happly(ranked,printR);
 		
 		//printf("%d",strlen(input));
-		hclose(words);
-		hclose(ranked);
 		memset(result, '\0', sizeof(char)*100);
 		printf(">");
 		fgets(input, 100, stdin);
