@@ -17,6 +17,7 @@ typedef struct word {
 } word_t;
 typedef struct rankedDoc{
 	int rank;
+	int ranks[20];
 	char id[20];
 	char url[100];
 } rank_t;
@@ -28,6 +29,13 @@ void freeDoc(void *doc){
 void CIQ(void* hashWord){
 	//qapply(((word_t*)hashWord)->docs,freeDoc);
   qclose((((word_t*)hashWord)->docs));
+}
+void calculateRanks(void* ranked){
+	int rank=0;
+	for(int i=0;i<20;i++){
+		rank+=((rank_t *)ranked)->ranks[i];
+	}
+	((rank_t*)ranked)->rank=rank;
 }
 
 
@@ -63,9 +71,9 @@ int main(int argc, const char **argv) {
 	printf(">");
 	fgets(input, 100, stdin);
 	//chdir("../indexes");
+	bool or = false;
 	
-	
-	while(strcmp(input, "quit\n") !=0){
+	while((strcmp(input, "quit\n") !=0)){
 		valid = 0;
 		words =indexload("depth1","indexes");
 		ranked=hopen(100);
@@ -96,56 +104,77 @@ int main(int argc, const char **argv) {
 		}
 		
 		if(valid == 0){
+			char *remaining = result;
 			char *word;
-			word=strtok(result, " ");
-			//int rank=NULL;
-			while(word!=NULL){
-				
-				//memset(searched, '\0', sizeof(char)*50);
-				if(strlen(word)>2){
-					//printf("%s\n",word);
+			while((word=__strtok_r(remaining, "or",&remaining))){
+				int count =0;
+				printf("or split:%s\n",word);
+				//int rank=NULL;
+				char *token;
+				token=strtok(word, " ");
+				while(token!=NULL){
+					printf("token:%s",token);
+					//memset(searched, '\0', sizeof(char)*50);
+					if((strlen(word)>2)||(strcmp(word,"or")==0)){
+						//printf("%s\n",word);
 					//while(fscanf(f,"%s%*[^\n]",searched)==1){
-					word_t *w=(word_t*)hsearch(words,hWord,word,strlen(word));
-					if (w){
-						//printf("found");
-						if(strcmp(w->name,"and")!=0){
-							doc_t *d=(doc_t*)qget(w->docs);
-							while(d){
-								int amount = d->occurences;
-								rank_t *r=(rank_t *) hsearch(ranked, hRank, d->name, strlen(d->name));
-								if (r){
-									//printf("%s:%d ",word,amount);
-									fflush(stdout);
-									if (amount<r->rank){
-										r->rank=amount;
+						//if(strcmp(word,"or")==0){
+						//		or=true;
+						//count=1;
+						//}
+						word_t *w=(word_t*)hsearch(words,hWord,word,strlen(word));
+						if (w){
+							//printf("found");
+							if(strcmp(w->name,"and")!=0){
+								doc_t *d=(doc_t*)qget(w->docs);
+								while(d){
+									int amount = d->occurences;
+									rank_t *r=(rank_t *) hsearch(ranked, hRank, d->name, strlen(d->name));
+									if (r){
+										//printf("%s:%d ",word,amount);
+										fflush(stdout);
+										if ((amount<r->ranks[count])&&(!or)){
+											r->ranks[count]=amount;
+										}
+										else if (or){
+											r->ranks[count]+=amount;
+											
+										}
 									}
+									else{
+										rank_t *newRanked;
+										newRanked = (rank_t *)malloc(sizeof(rank_t));
+										chdir("../FQc");
+										FILE *f=fopen(d->name,"r");
+										fscanf(f,"%s",newRanked->url);
+										fclose(f);
+										newRanked->ranks[count] = d->occurences;
+										strcpy(newRanked->id, d->name);
+										hput(ranked, newRanked, d->name, strlen(d->name));
+										//printf("%s",newRanked->id);
+										//free(newRanked);
+									}
+									free(d);
+									d=(doc_t*)qget(w->docs);
 								}
-								else{
-									rank_t *newRanked;
-									newRanked = (rank_t *)malloc(sizeof(rank_t));
-									chdir("../FQc");
-									FILE *f=fopen(d->name,"r");
-									fscanf(f,"%s",newRanked->url);
-									fclose(f);
-									newRanked->rank = d->occurences;
-									strcpy(newRanked->id, d->name);
-									hput(ranked, newRanked, d->name, strlen(d->name));
-									//printf("%s",newRanked->id);
-									//free(newRanked);
-								}
-								free(d);
-								d=(doc_t*)qget(w->docs);
 							}
 						}
+						
 					}
+					token=strtok(NULL, " ");	
 				}
-				word=strtok(NULL," ");	
+				//if((or)&&(strcmp(word,"or")!=0)){
+				//or=false;
+				//}
+				count+=1;
+				//word=strtok(NULL," ");	
 			}
 			
 			
 		}
-		
+		or=false;
 		//printf("made it through");
+		happly(ranked,calculateRanks);
 		happly(ranked,printR);
 		hclose(ranked);
 		//indexsave(words, "oof", "indexes");
