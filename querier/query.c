@@ -20,15 +20,28 @@ typedef struct rankedDoc{
 	char id[20];
 	char url[30];
 } rank_t;
-bool hWord(void* hashWord, const void* searchWord){                                                                                                                        
-  word_t *obj =(word_t*)hashWord;                                                                                                                                                     
-  //strcpy(h,obj->name);                                                                                                                                                              
-  //printf("objectname:%s\n",obj->name);                                                                                                                                              
-  if (!strcmp(obj->name, (char*)searchWord)) {                                                                                                                                        
-    return true;                                                                                                                                                                      
-  }                                                                                                                                                                                   
-  return false;                                                                                                                                                                       
-}  
+bool hWord(void* hashWord, const void* searchWord){
+  word_t *obj =(word_t*)hashWord;
+	if (!strcmp(obj->name, (char*)searchWord)) {
+    return true;
+  }	
+  return false;
+}
+
+bool hRank(void* rank, const void* searchWord){
+  rank_t *obj =(rank_t*)rank;
+	if (!strcmp(obj->id, (char*)searchWord)) {
+    return true;
+  }	
+  return false;
+}
+
+void printR(void *r){
+	rank_t *rank=(rank_t*)r;
+	printf("%s:%d", rank->id,rank->rank);
+	fflush(stdout);
+}
+
 int main(int argc, const char **argv) {
 	int valid = 0;
 	char result[100];
@@ -86,22 +99,22 @@ int main(int argc, const char **argv) {
 						if(strcmp(w->name,"and")!=0){
 							doc_t *d=(doc_t*)qget(w->docs);
 							while(d){
-								rank_t *r=(rank_t *) hsearch(ranked, hWord, d->name, strlen(d->name));
+								int amount = d->occurences;
+								rank_t *r=(rank_t *) hsearch(ranked, hRank, d->name, strlen(d->name));
 								if (r){
-									int amount = d->occurences;
-									printf("%s:%d ",word,amount);
+									//printf("%s:%d ",word,amount);
 									fflush(stdout);
-									if ((r->rank==NULL) || (amount<r->rank)){
+									if (amount<r->rank){
 										r->rank=amount;
 									}
 								}
 								else{
 									rank_t *newRanked;
-									newRanked = malloc(sizeof(rank_t));
+									newRanked = (rank_t *)malloc(sizeof(rank_t));
 									newRanked->rank = d->occurences;
 									strcpy(newRanked->id, d->name);
 									hput(ranked, newRanked, d->name, strlen(d->name));
-									printf("%s",newRanked->id);
+									//printf("%s",newRanked->id);
 								}
 								d=(doc_t*)qget(w->docs);
 							}
@@ -113,8 +126,8 @@ int main(int argc, const char **argv) {
 			
 		}
 		
-		printf("made it through");
- 
+		//printf("made it through");
+		happly(ranked,printR);
 		
 		//printf("%d",strlen(input));
 		hclose(words);
