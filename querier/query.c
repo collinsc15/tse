@@ -39,7 +39,7 @@ int main(int argc, const char **argv) {
 	fgets(input, 100, stdin);
 	//chdir("../indexes");
 	words =indexload("depth0","indexes");
-	ranked=hopen();
+	ranked=hopen(100);
 	while(strcmp(input, "quit\n") !=0){
 		valid = 0;
 		//clear new line 
@@ -48,10 +48,14 @@ int main(int argc, const char **argv) {
 		int i;
 		for (i = 0; i<strlen(input); i++){
 			char current = input[i];
-			char previous = input[i-1];
+			char previous = '\0';
+			if(i>0){
+				previous = input[i-1];
+			}
 			if(isalpha(current)!=0 || (isspace(current) != 0 && isspace(previous) == 0)){
-				result[strlen(result)] = tolower(current);
-				result[strlen(result) + 1] = '\0';
+				int len = strlen(result);
+				result[len] = tolower(current);
+				result[len + 1] = '\0';
 				
 			}
 			if(ispunct(current)!=0 || isdigit(current)!= 0){
@@ -88,6 +92,14 @@ int main(int argc, const char **argv) {
 									if ((r->rank==NULL) || (amount<r->rank)){
 										rank=amount;
 									}
+								}
+								else{
+									rank_t *newRanked;
+									newRanked = malloc(sizeof(rank_t));
+									newRanked->rank = NULL;
+									strcpy(newRanked->id, d->name);
+									
+									hput(ranked, newRanked, d->name, strlen(d->name));
 								}
 							}
 						}
