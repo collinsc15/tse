@@ -10,7 +10,7 @@ typedef struct doc {
   char name[50];                                                                                                                                                                      
   int occurences;                                                                                                                                                                     
 } doc_t;                                                                                                                                                                              
-                                                                                                                                                                                      
+                                                                                                                                                                                       
 typedef struct word {                                                                                                                                                                 
   char name[50];                                                                                                                                                                      
   queue_t *docs;                                                                                                                                                                      
@@ -18,8 +18,20 @@ typedef struct word {
 typedef struct rankedDoc{
 	int rank;
 	char id[20];
-	char url[50];
+	char url[100];
 } rank_t;
+
+void freeDoc(void *doc){
+	free(doc);
+}
+
+void CIQ(void* hashWord){
+	//qapply(((word_t*)hashWord)->docs,freeDoc);
+  qclose((((word_t*)hashWord)->docs));
+}
+
+
+
 bool hWord(void* hashWord, const void* searchWord){
   word_t *obj =(word_t*)hashWord;
 	if (!strcmp(obj->name, (char*)searchWord)) {
@@ -88,7 +100,7 @@ int main(int argc, const char **argv) {
 			word=strtok(result, " ");
 			//int rank=NULL;
 			while(word!=NULL){
-				char searched[50];
+				
 				//memset(searched, '\0', sizeof(char)*50);
 				if(strlen(word)>2){
 					//printf("%s\n",word);
@@ -119,7 +131,9 @@ int main(int argc, const char **argv) {
 									strcpy(newRanked->id, d->name);
 									hput(ranked, newRanked, d->name, strlen(d->name));
 									//printf("%s",newRanked->id);
+									//free(newRanked);
 								}
+								free(d);
 								d=(doc_t*)qget(w->docs);
 							}
 						}
@@ -127,13 +141,16 @@ int main(int argc, const char **argv) {
 				}
 				word=strtok(NULL," ");	
 			}
-			hclose(words);
-			hclose(ranked);
+			
+			
 		}
 		
 		//printf("made it through");
 		happly(ranked,printR);
-		
+		hclose(ranked);
+		//indexsave(words, "oof", "indexes");
+		happly(words,CIQ);
+		hclose(words);
 		//printf("%d",strlen(input));
 		memset(result, '\0', sizeof(char)*100);
 		printf(">");
