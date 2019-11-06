@@ -38,10 +38,12 @@ int main(int argc, const char **argv) {
 	printf(">");
 	fgets(input, 100, stdin);
 	//chdir("../indexes");
-	words =indexload("depth0","indexes");
-	ranked=hopen(100);
+	
+	
 	while(strcmp(input, "quit\n") !=0){
 		valid = 0;
+		words =indexload("depth0","indexes");
+		ranked=hopen(100);
 		//clear new line 
 		input[strlen(input) -1] = '\0';
 		result[0]='\0';
@@ -71,7 +73,7 @@ int main(int argc, const char **argv) {
 		if(valid == 0){
 			char *word;
 			word=strtok(result, " ");
-			int rank=NULL;
+			//int rank=NULL;
 			while(word!=NULL){
 				char searched[50];
 				memset(searched, '\0', sizeof(char)*50);
@@ -90,17 +92,18 @@ int main(int argc, const char **argv) {
 									printf("%s:%d ",word,amount);
 									fflush(stdout);
 									if ((r->rank==NULL) || (amount<r->rank)){
-										rank=amount;
+										r->rank=amount;
 									}
 								}
 								else{
 									rank_t *newRanked;
 									newRanked = malloc(sizeof(rank_t));
-									newRanked->rank = NULL;
+									newRanked->rank = d->occurences;
 									strcpy(newRanked->id, d->name);
-									
 									hput(ranked, newRanked, d->name, strlen(d->name));
+									printf("%s",newRanked->id);
 								}
+								d=(doc_t*)qget(w->docs);
 							}
 						}
 					}
@@ -108,8 +111,10 @@ int main(int argc, const char **argv) {
 				word=strtok(NULL," ");	
 			}
 			
-			printf("-%d",rank);
 		}
+		
+		printf("made it through");
+ 
 		
 		//printf("%d",strlen(input));
 		hclose(words);
@@ -123,5 +128,5 @@ int main(int argc, const char **argv) {
 
 	
 	return 0;
-
+	
 }
