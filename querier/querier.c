@@ -224,24 +224,23 @@ int main(int argc, const char **argv) {
 										strcpy(newRanked->id, d->name);
 
 										if ((searchArray[l+1])){
-										 if (!(strcmp(searchArray[l+1],"or"))){
-											or = true;
-											//	ever_or = true;
-											newRanked->rankWithOr += newRanked->rank;
-											//											printf("This is ranksize after or: %d\n", r->rankWithOr);
-											newRanked->rank = INT16_MAX;
-											fflush(stdout);
+											if (!(strcmp(searchArray[l+1],"or"))){
+												or = true;
+												newRanked->rankWithOr += newRanked->rank;
+												newRanked->rank = newRanked->rankWithOr;
+											}
+										
+										
 										}
 										hput(ranked, newRanked, d->name, strlen(d->name));
 									}
-								}
 									free(d);
 									d=(doc_t*)qget(w->docs);
 								}
 							}
 						}
-												
-					
+						
+						
 					}
 					//	token=strtok(NULL, " ");	
 				}
