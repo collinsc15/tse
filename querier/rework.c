@@ -104,7 +104,7 @@ int main(int argc, const char **argv) {
 				//char *exists[100];
 				count +=1;
 				
-				//memset(searched, '\0', sizeof(char)*50);
+				//
 				if((strlen(word)>2)||(strcmp(word,"or")==0)){
 					//printf("%s\n",word);
 					//while(fscanf(f,"%s%*[^\n]",searched)==1){
@@ -117,15 +117,16 @@ int main(int argc, const char **argv) {
 					if (w){
 						//printf("found");
 						if(strcmp(w->name,"and")!=0){
+							
 							doc_t *d=(doc_t*)qget(w->docs);
 							while(d){
 								int amount = d->occurences;
 								rank_t *r=(rank_t *) qsearch(ranked, hRank, d->name);
 								if (r){
 									//printf("%s:%d ",word,amount);
-									rank_t *rr=qremove(ranked, hRank,r->id);
+									rank_t *rr=qremove(ranked, hRank, r->id);
 									printf("success");
-									qput(newQueue,rr);
+									qput(newQueue,r);
 									fflush(stdout);
 									if ((amount<r->rank)&&(!or)){
 										r->rank=amount;
@@ -150,14 +151,16 @@ int main(int argc, const char **argv) {
 								free(d);
 								d=(doc_t*)qget(w->docs);
 							}
-							qclose(ranked);
-							ranked =NULL;
-							ranked=newQueue;
+							
 						}
-						
+						//free(w);	
 						
 					}
 					
+							qclose(ranked);
+							ranked =NULL;
+							ranked=newQueue;
+							
 					
 					
 				}
