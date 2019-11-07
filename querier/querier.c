@@ -1,5 +1,5 @@
 /*
-
+1;5202;0c
 
 
 
@@ -86,6 +86,7 @@ int main(int argc, const char **argv) {
 	fgets(input, 100, stdin);
 	//chdir("../indexes");
 	bool or = false;
+	bool ever_or = false;
 	
 	while((strcmp(input, "quit\n") !=0)){
 		valid = 0;
@@ -132,7 +133,7 @@ int main(int argc, const char **argv) {
 			word=strtok(result, " ");
 			
 			while (word){
-				searchArray = realloc(searchArray, sizeof(char*) * ++n_spaces); //reallocate for each new word
+				searchArray = realloc(searchArray, sizeof(word) * ++n_spaces); //reallocate for each new word
 				if (searchArray == NULL){
 					exit(EXIT_FAILURE); //realloc fail
 				}
@@ -141,7 +142,7 @@ int main(int argc, const char **argv) {
 				word = strtok(NULL, " ");
 			}
 
-		  //searchArray = realloc(searchArray, sizeof(char*) * ++n_spaces);
+		  searchArray = realloc(searchArray, sizeof(char*) * (n_spaces+1));
 			searchArray[n_spaces] = 0;
 			//int rankSize = 0;
 			int k;
@@ -167,6 +168,7 @@ int main(int argc, const char **argv) {
 					if((strlen(token)>2)){ // if our word is longer than 2 or is "or"
 						word_t *w=(word_t*)hsearch(words,hWord,token,strlen(token)); // try and find it in our index
 						if (w){ // if we find it
+							//		printf("The word %s was found here \n", w->name);
 							if(strcmp(w->name,"and")){ // and it is not "and"
 								doc_t *d=(doc_t*)qget(w->docs); // get its associated document queue
 								while(d){  // while the doc exists
@@ -174,24 +176,33 @@ int main(int argc, const char **argv) {
 									rank_t *r=(rank_t *) hsearch(ranked, hRank, d->name, strlen(d->name)); // not fully clear at the moment.
 									if (r){ // if this rand struct isn't null
 										fflush(stdout); // why?
+										//	if (or){
+										//	r -> rank = INT16_MAX;
+										// or = false;											
+										//	}
 										if (( amount < (r->rank) )){ // if there are fewer occurences than the rank or !or
 											r->rank=amount; // update the rank toa ammount
 										}
 										//	printf("Why re you not null %s \n", searchArray[l+1]);
-										if (!(searchArray[l+1]) && or){
+										if (!(searchArray[l+1])){
+											if (or){
 											//printf("This is the  final rank before add%d\n", r->rankWithOr);
 											fflush(stdout);
-											r->rank = 
 											r->rankWithOr += r-> rank;
 											r->rank = r->rankWithOr;
+											}
 										}
+									  
 										else if (!(strcmp(searchArray[l+1],"or"))){
 											or = true;
+											//	ever_or = true;
 											r->rankWithOr += r->rank;
 											//											printf("This is ranksize after or: %d\n", r->rankWithOr);
-											r->rank = INT8_MAX;
+											//	if (hsearch(words,hWord,searchArray[l+2],strlen(searchArray[l+2]))){
+												r->rank = INT16_MAX;
+											//}
 											fflush(stdout);
-											}
+										}
 										
 										//		else if (or){ //add if or....
 										//		r->ranks[count]+=amount; 
@@ -207,8 +218,19 @@ int main(int argc, const char **argv) {
 										newRanked->rank = d->occurences; // update the current rank
 										newRanked->rankWithOr = 0;
 										strcpy(newRanked->id, d->name);
+
+										if ((searchArray[l+1])){
+										 if (!(strcmp(searchArray[l+1],"or"))){
+											or = true;
+											//	ever_or = true;
+											newRanked->rankWithOr += newRanked->rank;
+											//											printf("This is ranksize after or: %d\n", r->rankWithOr);
+											newRanked->rank = INT16_MAX;
+											fflush(stdout);
+										}
 										hput(ranked, newRanked, d->name, strlen(d->name));
 									}
+								}
 									free(d);
 									d=(doc_t*)qget(w->docs);
 								}
