@@ -31,6 +31,7 @@ typedef struct word {
 
 typedef struct rankedDoc{
 	int rank;
+	int place;
 	int rankWithOr;
 	bool orEd;
 	int ranks[20];
@@ -198,11 +199,12 @@ int main(int argc, char *argv[]) {
 			}
 			if ((strcmp(searchArray[0],"and")) && (strcmp(searchArray[0], "or")) && (strcmp(searchArray[n_spaces-1],"and")) && (strcmp(searchArray[n_spaces-1], "or"))){
 					for (int l=0; l < n_spaces; l++){
-						printf("split:%s\n",searchArray[l]);
+						printf("\nsplit:%s:\n",searchArray[l]);
 						char *token = searchArray[l]; // remove = smth and use next line if error
 						if(strcmp(token,"or")){
 							printf("token is :%s ",token); 
 							if((strlen(token)>2)){ // if our word is longer than 2 or is "or"
+								//char *exists[100];
 								word_t *w=(word_t*)hsearch(words,hWord,token,strlen(token)); // try and find it in our index
 								if (w){ // if we find it
 									if(strcmp(w->name,"and")){ // and it is not "and"
@@ -240,11 +242,11 @@ int main(int argc, char *argv[]) {
 												else if (!(strcmp(searchArray[l+1],"or"))){
 													r ->orEd = true;								 
 													r->rankWithOr += r->rank;
-													r->rank = r->rankWithOr;
+													//r->rank = r->rankWithOr;
 												}
 									
 											}
-											else{ // if the word isn't found
+											else if ((!r)&&(l==0)){ // if the word isn't found
 												rank_t *newRanked; // create a new rank_t
 												newRanked = (rank_t *)malloc(sizeof(rank_t));
 												chdir("../pages");
@@ -260,7 +262,7 @@ int main(int argc, char *argv[]) {
 													if (!(strcmp(searchArray[l+1],"or"))){
 														newRanked -> orEd = true;
 														newRanked->rankWithOr += newRanked->rank;
-														newRanked->rank = newRanked->rankWithOr;
+														//newRanked->rank = newRanked->rankWithOr;
 													}
 												}
 												hput(ranked, newRanked, d->name, strlen(d->name));

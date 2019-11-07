@@ -81,19 +81,19 @@ int main(int argc, char *argv[]) {
 	char* loadFrom = (char*)malloc(100*sizeof(char));
 	char* fileName = (char*)malloc(100*sizeof(char));
 	if ((argc != 3) && (argc!=6)){
-		printf("usage incorrect num");
+		printf("usage: query <pageDirectory> <indexFile> [-q]\n");
 		exit(EXIT_FAILURE);
 	}
 	if (argc == 6){
 		if (strcmp(argv[3],"-q")){
-			printf("usage 3 is not q");
+			printf("usage: query <pageDirectory> <indexFile> [-q] [queryInput] [output file]\n");
 			exit(EXIT_FAILURE);
 		}
 		else{
 			strcpy(loadFrom,argv[5]);
 			DIR* dir = opendir(loadFrom);
 			if (!dir){
-				printf("usage q directory");
+				printf("usage: query <pageDirectory> <indexFile> [-q] [queryInput] [output file]\n");
 				exit(EXIT_FAILURE);
 			}
 			strcpy(fileName,argv[4]);
@@ -101,13 +101,13 @@ int main(int argc, char *argv[]) {
 	}
 	else
 		{
-			printf("%d",argc);
-			printf("%s", argv[1]);
+			printf("%d\n",argc);
+			printf("%s\n", argv[1]);
 			char* crawlDir = (char*)malloc(100*sizeof(char));
 			strcpy(crawlDir,argv[1]);
 			DIR* dir = opendir(crawlDir);
 			if (!dir){
-				printf("usage non q directory");
+				printf("usage: directory does not exist\n");
 				exit(EXIT_FAILURE);
 			}
 			strcpy(fileName,argv[2]);
@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
 			sprintf(executeCommand,"../indexer/indexer ../%s ../indexes/%s", crawlDir, fileName);
 			int status = system(executeCommand);
 			if (status != 0){
-				printf("cannot execute system command");
+				printf("cannot execute system command\n");
 				exit(EXIT_FAILURE);
 			}
 		}
@@ -129,7 +129,14 @@ int main(int argc, char *argv[]) {
 	
 	
 	printf(">");
-	fgets(input, 100, stdin);
+	FILE *fp;
+	if (argv[3] == "-q"){
+		fp  = fopen(argv[4], "r");
+		fgets(input, 100, fp);
+	}else{
+		fgets(input, 100, stdin);
+	}
+
 	bool or = false;
 		
 	while((strcmp(input, "quit\n") !=0)){
@@ -272,7 +279,7 @@ int main(int argc, char *argv[]) {
 		}
 		or=false;
 		
-		//printf("made it through");
+		printf("made it through");
 		//happly(ranked,calculateRanks);
 		happly(ranked,printR);
 		hclose(ranked);
@@ -282,6 +289,7 @@ int main(int argc, char *argv[]) {
 		//printf("%d",strlen(input));
 		memset(result, '\0', sizeof(char)*100);
 		printf(">");
+		free(fp);
 		fgets(input, 100, stdin);
 		
 		}
