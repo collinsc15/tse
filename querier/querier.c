@@ -176,34 +176,38 @@ int main(int argc, const char **argv) {
 									rank_t *r=(rank_t *) hsearch(ranked, hRank, d->name, strlen(d->name)); // not fully clear at the moment.
 									if (r){ // if this rand struct isn't null
 										fflush(stdout); // why?
-										//	if (or){
-										//	r -> rank = INT16_MAX;
-										// or = false;											
-										//	}
+											if (or){
+											r -> rank = INT16_MAX;
+										 or = false;											
+											}
 										if (( amount < (r->rank) )){ // if there are fewer occurences than the rank or !or
 											r->rank=amount; // update the rank toa ammount
 										}
 										//	printf("Why re you not null %s \n", searchArray[l+1]);
 										if (!(searchArray[l+1])){
-											if (or){
+											//if (or){
 											//printf("This is the  final rank before add%d\n", r->rankWithOr);
-											fflush(stdout);
-											r->rankWithOr += r-> rank;
-											r->rank = r->rankWithOr;
+												fflush(stdout);
+												r->rankWithOr += amount;
+												r->rank = r->rankWithOr;
+												//	r->rankWithOr = r->rank
+												//	}
 											}
-										}
+										
 									  
 										else if (!(strcmp(searchArray[l+1],"or"))){
 											or = true;
 											//	ever_or = true;
 											r->rankWithOr += r->rank;
+											r->rank = r->rankWithOr;
+											//r->rankWithOr = r->rank;
 											//											printf("This is ranksize after or: %d\n", r->rankWithOr);
 											//	if (hsearch(words,hWord,searchArray[l+2],strlen(searchArray[l+2]))){
-												r->rank = INT16_MAX;
+											//	r->rank = INT16_MAX;
 											//}
 											fflush(stdout);
 										}
-										
+									
 										//		else if (or){ //add if or....
 										//		r->ranks[count]+=amount; 
 										//	}
@@ -236,6 +240,7 @@ int main(int argc, const char **argv) {
 								}
 							}
 						}
+												
 					
 					}
 					//	token=strtok(NULL, " ");	
