@@ -63,7 +63,7 @@ int main(int argc, const char **argv) {
 		valid = 0;
 		//clear new line 
 		input[strlen(input) -1] = '\0';
-		result='\0';
+		memset(result, '\0', sizeof(char)*100);
 		int i;
 		ranks=qopen();
 		for (i = 0; i<strlen(input); i++){
