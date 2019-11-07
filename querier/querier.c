@@ -16,6 +16,7 @@ made
 #include <hash.h>
 #include <queue.h>
 #include <indexio.h>
+#include <dirent.h>
 #define BUFFER_SIZE BUFSIZ
 
 typedef struct doc {                                                                                                                                                                  
@@ -31,6 +32,7 @@ typedef struct word {
 typedef struct rankedDoc{
 	int rank;
 	int rankWithOr;
+	bool orEd;
 	int ranks[20];
 	char id[20];
 	char url[100];
@@ -76,19 +78,64 @@ void printR(void *r){
 	fflush(stdout);
 }
 
-int main(int argc, const char **argv) {
+int main(int argc, char *argv[]) {
+	//	char* loadFrom = (char*)malloc(100*sizeof(char));
+	//char* fileName = (char*)malloc(100*sizeof(char));
+	//if ((argc != 3) && (argc!=6)){
+	//	printf("usage incorrect num");
+	//	exit(EXIT_FAILURE);
+	//}
+	//if (argc == 6){
+	//	if (strcmp(argv[3],"-q")){
+	//		printf("usage 3 is not q");
+	//		exit(EXIT_FAILURE);
+	//	}
+	//	else{
+	//		strcpy(loadFrom,argv[5]);
+	//		DIR* dir = opendir(loadFrom);
+	//		if (!dir){
+	//			printf("usage q directory");
+	//			exit(EXIT_FAILURE);
+	//		}
+	//		strcpy(fileName,argv[4]);
+	//	}
+	//}
+	//else
+	//	{
+	//		printf("%d",argc);
+	//		printf("%s", argv[1]);
+	//		char* crawlDir = (char*)malloc(100*sizeof(char));
+	//		strcpy(crawlDir,argv[1]);
+	//		DIR* dir = opendir(crawlDir);
+	//		if (!dir){
+	//			printf("usage non q directory");
+	//			exit(EXIT_FAILURE);
+	//		}
+	//	strcpy(fileName,argv[2]);
+	//		loadFrom = "../indexes";
+	//	char executeCommand[200] = {0};
+	//	sprintf(executeCommand,"../indexer/indexer ../%s ../indexes/%s", crawlDir, fileName);
+	//		int status = system(executeCommand);
+	//	if (status != 0){
+	//			printf("cannot execute system command");
+	//			exit(EXIT_FAILURE);
+	//		}
+	//	}
 	int valid = 0;
 	char result[100];
 	char input[100];
 	hashtable_t *words;
 	hashtable_t *ranked;
+
+	
+	
 	printf(">");
 	fgets(input, 100, stdin);
 	bool or = false;
 		
 	while((strcmp(input, "quit\n") !=0)){
 		valid = 0;
-		words =indexload("depth1","indexes");
+		words =indexload("depth1","indexes"); // make sure to have "../" when calling in bash
 		ranked=hopen(100);
 		//clear new line 
 		input[strlen(input) -1] = '\0';
@@ -165,22 +212,33 @@ int main(int argc, const char **argv) {
 											rank_t *r=(rank_t *) hsearch(ranked, hRank, d->name, strlen(d->name)); // not fully clear at the moment.
 											if (r){ // if this rand struct isn't null
 												fflush(stdout); // why?
-												if (or){
+												if (r->orEd){
 													r -> rank = INT16_MAX;
-													or = false;											
+													printf("SUCCES %d \n", r->rank);
+													fflush(stdout);
+													r ->orEd = false;											
 												}
 												if (( amount < (r->rank) )){ // if there are fewer occurences than the rank or !or
-													r->rank=amount; // update the rank toa ammount
-												}
-												if (!(searchArray[l+1])){
+
+													printf("My status is %d and %d \n", r->rank, amount);
 													fflush(stdout);
-													r->rankWithOr += amount;
-													r->rank = r->rankWithOr;
+													r->rank = amount; // update the rank toa ammount     
+												}
+												//												printf("%d", strcmp(searchArray[l-1],"or"));
+												if (!(searchArray[l+1])){
+													//fflush(stdout);
+													//if (!(strcmp(searchArray[l-1],"or"))){
+													//		r->rankWithOr += amount;
+													//		r->rank = r->rankWithOr;
+													//	}
+													//else{
+														r->rankWithOr += r->rank;
+														r->rank = r->rankWithOr;
+														//	}
 												}
 																						
 												else if (!(strcmp(searchArray[l+1],"or"))){
-													or = true;
-								 
+													r ->orEd = true;								 
 													r->rankWithOr += r->rank;
 													r->rank = r->rankWithOr;
 												}
@@ -194,12 +252,13 @@ int main(int argc, const char **argv) {
 												fscanf(f,"%s",newRanked->url); 
 												fclose(f);
 												newRanked->rank = d->occurences; // update the current rank
+												newRanked -> orEd = false;
 												newRanked->rankWithOr = 0;
 												strcpy(newRanked->id, d->name);
 												
 												if ((searchArray[l+1])){
 													if (!(strcmp(searchArray[l+1],"or"))){
-														or = true;
+														newRanked -> orEd = true;
 														newRanked->rankWithOr += newRanked->rank;
 														newRanked->rank = newRanked->rankWithOr;
 													}
