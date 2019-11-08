@@ -21,7 +21,7 @@ made
 
 
 static int counter = 0;
-
+static bool or =false;
 typedef struct doc {                                                                                                                                                                  
   char name[50];                                                                                                                                                                      
   int occurences;                                                                                                                                                                     
@@ -36,13 +36,15 @@ typedef struct rankedDoc{
 	int rank;
 	int rankWithOr;
 	bool orEd;
+	bool keep;
 	int rCount;
 	char id[20];
 	char url[100];
 } rank_t;
 
-void freeDoc(void *doc){
-	free(doc);
+void setFalse(void *r){
+	rank_t *rank=(rank_t*)r;
+	rank->orEd = false;
 }
 
 void CIQ(void* hashWord){
@@ -77,8 +79,10 @@ bool hRank(void* rank, const void* searchWord){
 
 void printR(void *r){
 	rank_t *rank=(rank_t*)r;
-	printf("Rank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
-	fflush(stdout);
+	if(rank->rank!=0){
+		printf("Rank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
+		fflush(stdout);
+	}
 }
 
 void setR(void *r){
@@ -86,12 +90,44 @@ void setR(void *r){
 	rank->rank = rank-> rankWithOr;
 }
 
+void updateRank(void *r){
+	rank_t *rank=(rank_t*)r;
+	if (rank -> rank == 0){
+		rank->rank = rank->rankWithOr;
+	}
+}
+
 void setRZero(void *r){
 	rank_t *rank = (rank_t*)r;
-	printf("THE COUNTER%d\n", counter);
-	if (rank->rCount < counter){
-		rank -> rank = 0;
-		rank -> rankWithOr  = 0;
+	//printf("THE COUNTER%d\n", counter);
+	if (rank->orEd){
+		if ((!rank->keep)&&(rank->rCount < counter)){
+			rank -> rank = 0;
+			rank -> rankWithOr  = 0;
+			printf("\nzeroed %s\n",rank->id);
+		}
+		else if(rank->rCount==counter){
+			//rank->rank+=rank->rankWithOr;
+			//rank->rankWithOr=0;
+			if(!rank->keep){
+				printf("kept Id:%s",rank->id);
+				rank->keep=true;
+			}
+		}
+		rank->rCount=0;
+	}
+	else {
+		if(rank->rCount!=counter){
+			//if ((!rank->keep)&&(rank->rCount==1)){
+					rank->rank=0;
+					rank->rCount=0;
+					//	}
+				//	else if (rank->rCount>1){
+					//	rank->rank=0;
+					//	rank->rCount=0;
+					//	}
+			}
+			
 	}
 }
 
@@ -149,7 +185,7 @@ int main(int argc, char *argv[]) {
 	
 	printf(">");
 	fgets(input, 100, stdin);
-	bool or = false;
+	//bool or = false;
 		
 	while((strcmp(input, "quit\n") !=0)){
 		//int counter = 0;
@@ -224,9 +260,9 @@ int main(int argc, char *argv[]) {
 			///	}
 			if ((strcmp(searchArray[0],"and")) && (strcmp(searchArray[0], "or")) && (strcmp(searchArray[n_spaces-1],"and")) && (strcmp(searchArray[n_spaces-1], "or"))){
 					for (int l=0; l < n_spaces; l++){
-						printf("split:%s\n",searchArray[l]);
+						//printf("split:%s\n",searchArray[l]);
 						char *token = searchArray[l]; // remove = smth and use next line if error
-						if(strcmp(token,"or")){
+						if((strcmp(token,"or"))&&(strcmp(token,"and"))){
 							printf("token is :%s ",token); 
 							if((strlen(token)>2)){ // if our word is longer than 2 or is "or"
 								counter+=1;
@@ -237,6 +273,7 @@ int main(int argc, char *argv[]) {
 										while(d){  // while the doc exists
 											int amount = d->occurences; // number of times word occurs in document
 											rank_t *r=(rank_t *) hsearch(ranked, hRank, d->name, strlen(d->name)); // not fully clear at the moment.
+											printf("\nCOUNTER: %d\n",counter);
 											if (r){ // if this rand struct isn't null
 												fflush(stdout); // why?
 												r->rCount +=1;
@@ -244,8 +281,12 @@ int main(int argc, char *argv[]) {
 													r -> rank = INT16_MAX;
 													printf("SUCCES %d \n", r->rank);
 													fflush(stdout);
-													r ->orEd = false;											
+													r -> orEd = false;											
 												}
+												if ((counter==1)&&(!r->keep)&&(or)){
+													r->rank=INT16_MAX;
+												}
+												//happly(ranked,setRZero);
 												if (( amount < (r->rank) )){ // if there are fewer occurences than the rank or !or
 
 													printf("My status is %d and %d \n", r->rank, amount);
@@ -269,24 +310,28 @@ int main(int argc, char *argv[]) {
 													//if (r->rCount < counter){
 														//	r->rank = 0;
 														//}
+													
 													r->rankWithOr += r->rank;
 													r->rank = r->rankWithOr;
-														//	}
+												
+													//	}
 												}
 																						
 												else if (!(strcmp(searchArray[l+1],"or"))){
 													//	if (r->rCount < counter){
 													//	r->rank = 0;
 													//	}
-													r ->orEd = true;								 
+													r ->orEd = true;
+													//happly(ranked,updateRank);
 													r->rankWithOr += r->rank;
 													r->rank = r->rankWithOr;
-													happly(ranked,setRZero);
-													counter = 0;
+													//happly(ranked,setRZero);
+													//counter = 0;
 												}
 									
 											}
-											else{ // if the word isn't found
+											
+											else if (counter==1){ // if the word isn't found
 												rank_t *newRanked; // create a new rank_t
 												newRanked = (rank_t *)malloc(sizeof(rank_t));
 												chdir("../pages");
@@ -298,14 +343,15 @@ int main(int argc, char *argv[]) {
 												newRanked->rankWithOr = 0;
 												strcpy(newRanked->id, d->name);
 												newRanked -> rCount = 1;
+												newRanked->keep=false;
 												if ((searchArray[l+1])){
 													if (!(strcmp(searchArray[l+1],"or"))){
 														
 														newRanked -> orEd = true;
 														newRanked->rankWithOr += newRanked->rank;
 														newRanked->rank = newRanked->rankWithOr;
-														happly(ranked,setRZero);
-														counter = 0;
+														//happly(ranked,setRZero);
+														//counter = 0;
 													}
 												}
 												happly(ranked,setRZero);
@@ -318,14 +364,33 @@ int main(int argc, char *argv[]) {
 											d=(doc_t*)qget(w->docs);
 										}
 									}
+									
+								}
+						 
+								else{
+									happly(ranked,setFalse);
+									happly(ranked,setRZero);
 								}
 								//								else{
 								//	happly(ranked,setR);
-								happly(ranked, setRZero);
+								
 								//						}
+								if ((searchArray[l+1])&&(!(strcmp(searchArray[l+1],"or")))){
+									or=true;
+									printf("\n\nhit the or\n");
+									happly(ranked,setRZero);
+									counter = 0;
+									//or=false;
+								}
+								happly(ranked, setRZero);
+								//if ((searchArray[l+1])&&(!(strcmp(searchArray[l+1],"or")))){
+								//counter=0;
+								//or=false;
+								//}
 							}
 							
 						}
+						
 					}
 			}
 			else{
@@ -341,7 +406,8 @@ int main(int argc, char *argv[]) {
 		
 		//printf("made it through");
 		//happly(ranked,calculateRanks);
-		happly(ranked, setRZero);
+		//happly(ranked, setRZero);
+		happly(ranked,updateRank);
 		happly(ranked,printR);
 		hclose(ranked);
 		//indexsave(words, "oof", "indexes");
