@@ -1,3 +1,4 @@
+
 /*
 0;136;0c
  */
@@ -9,9 +10,11 @@
 #include <queue.h>
 #include <indexio.h>
 #include <dirent.h>
+#include <unistd.h>
 #define BUFFER_SIZE BUFSIZ
 
 static int l=0;
+static FILE *fOut;
 
 typedef struct doc {                                                                                                                                                                  
   char name[50];                                                                                                                                                                      
@@ -20,7 +23,7 @@ typedef struct doc {
                                                                                                                                                                                        
 typedef struct word {                                                                                                                                                                 
   char name[50];                                                                                                                                                                      
-  queue_t *docs;                                                                                                                                                                      
+  queue_t *docs;                
 } word_t;
 
 typedef struct rankedDoc{
@@ -50,20 +53,19 @@ bool hRank(void* rank, const void* searchWord){
   return false;
 }
 
-void printR(void *r){
+void fprintR(void *r){
 	rank_t *rank=(rank_t*)r;
 	if(rank->rank!=0){
-		printf("Rank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
+		fprintf(fOut,"Rank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
 		fflush(stdout);
 	}
 }
 
 void printScores(void *r){
 	rank_t *rank=(rank_t*)r;
-	//	int num =rank->scores[0];
-	//int i =0;
+	
 	if (rank->rank > 0){
-	printf("\nRank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
+	printf("Rank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
 	//while(i<20){
 			//printf(":%d:",num);
 	//i+=1;
@@ -139,9 +141,15 @@ void calculate_score(int lastOr,int lengthOfSA, hashtable_t *htp, hashtable_t *r
 		happly(ranked, setRankOr);
 	}
 }
+void freeStrings(char *loadFrom, char *fileName, char *queryFile, char *queryOut){
+	free(loadFrom);
+	free(fileName);
+	free(queryFile);
+	free(queryOut);
+}
 
 void calculateRank(void *r){
-	printf("calculate rank gets called");
+	//printf("calculate rank gets called");
 	fflush(stdout);
 	rank_t *rank=(rank_t*)r;
 	int temps[20];
@@ -190,53 +198,76 @@ void calculateRank(void *r){
 int main(int argc, char *argv[]) {
 	char* loadFrom = (char*)malloc(100*sizeof(char));
 	char* fileName = (char*)malloc(100*sizeof(char));
+	char* queryFile = (char*)malloc(100*sizeof(char));
+	char* queryOut = (char*)malloc(100*sizeof(char));
+	char qIn[100] = {0};
+	char qOut[100] = {0};
+	
+	
 	if ((argc != 3) && (argc!=6)){
+		
 		printf("usage incorrect num");
+		fflush(stdout);
+		freeStrings(loadFrom, fileName, queryFile, queryOut);
 		exit(EXIT_FAILURE);
 		}
 
 	if (argc == 6){
 		if (strcmp(argv[3],"-q")){
+			freeStrings(loadFrom, fileName, queryFile, queryOut);
 			printf("usage 3 is not q");
+			fflush(stdout);
 			exit(EXIT_FAILURE);
-
-		}	
-	else{
-  	   sprintf(loadFrom,"%s%s","../",argv[5]);
-  	   DIR* dir = opendir(loadFrom);
-  	   if (!dir){
-       		printf("usage q directory");
-        	exit(EXIT_FAILURE);
-            }
-			 closedir(dir);
-			 sprintf(loadFrom,"%s",argv[5]);
-      strcpy(fileName,argv[4]);
-       }
+		}
+		
+			else{
+		//sprintf(loadFrom,"%s%s","../",argv[5]);
+		// DIR* dir = opendir(loadFrom);
+		//  if (!dir){
+		//  		printf("usage q directory");
+		//			freeStrings(loadFrom, fileName, queryFile, queryOut);
+		//			fflush(stdout);
+		//			exit(EXIT_FAILURE);
+		//	 }
+		//	 closedir(dir);
+			 sprintf(queryFile,"%s",argv[4]);
+			 // sprintf(quer,"%s%s%s","../",loadFrom,argv[4]);
+			 if ( access(queryFile, F_OK) == -1){
+				 printf("usage: Invalid q file");
+				 freeStrings(loadFrom, fileName, queryFile, queryOut);
+				 fflush(stdout);
+				 exit(EXIT_FAILURE);
+			 }
+			 	 sprintf(qOut,"%s",argv[4]);
+		  }
   }
-  else
-    {
-      printf("%d",argc);
-      printf("%s", argv[1]);
-      char* crawlDir = (char*)malloc(100*sizeof(char));
-      sprintf(crawlDir,"%s%s", "../",argv[1]);
-      DIR* dir = opendir(crawlDir);
-      if (!dir){
-        printf("usage non q directory");
-        exit(EXIT_FAILURE);
-      }
-			closedir(dir);
-			sprintf(crawlDir, "%s", argv[1]);
-    strcpy(fileName,argv[2]);
-		strcpy(loadFrom, "indexes");
-    char executeCommand[200] = {0};
-    sprintf(executeCommand,"../indexer/indexer %s %s", crawlDir, fileName);
-    int status = system(executeCommand);
+	
+	printf("%d",argc);
+	printf("%s", argv[1]);
+	char* crawlDir = (char*)malloc(100*sizeof(char));
+	sprintf(crawlDir,"%s%s", "../",argv[1]);
+	DIR* dir = opendir(crawlDir);
+	if (!dir){
+		printf("usage non q directory");
 		free(crawlDir);
-    if (status != 0){
-        printf("cannot execute system command");
-        exit(EXIT_FAILURE);
-      }
-    }
+		fflush(stdout);
+		freeStrings(loadFrom, fileName, queryFile, queryOut);
+		exit(EXIT_FAILURE);
+	}
+	closedir(dir);
+	sprintf(crawlDir, "%s", argv[1]);
+	sprintf(fileName,"%s",argv[2]);
+	strcpy(loadFrom, "indexes");
+	char executeCommand[200] = {0};
+	sprintf(executeCommand,"../indexer/indexer %s %s", crawlDir, fileName);
+	int status = system(executeCommand);
+	free(crawlDir);
+	if (status != 0){
+		printf("cannot execute system command");
+		freeStrings(loadFrom, fileName, queryFile, queryOut);
+		fflush(stdout);
+		exit(EXIT_FAILURE);
+	}
 
 
 	int valid = 0;
@@ -247,22 +278,38 @@ int main(int argc, char *argv[]) {
 	hashtable_t *ranked;
 
 	char load[100] = {0};
-	char dir[100] = {0};
+	char dirLoad[100] = {0};
 
 	strcpy(load, fileName);
-	strcpy(dir, loadFrom);
+	strcpy(dirLoad, loadFrom);
 
 	free(loadFrom);
 	free(fileName);
-	
+	strcpy(qIn, queryFile);
+	strcpy(qOut, queryOut);
+	free(queryFile);
+	free(queryOut);
+	if ( access(qIn, F_OK) == -1){
+		printf("usage: Invalid qIn file");
+		fflush(stdout);
+		exit(EXIT_FAILURE);
+		 }
+	FILE *f;
+	if (argc != 6){
+	f = stdin;
+	}
+	else{
+		f = fopen(qIn, "r");
+		fOut = fopen(qOut, "w");
+	}
 	printf(">");
-	fgets(input, 100, stdin);
+	fgets(input, 100, f);
 	//bool or = false;
 	
-	while(!(feof(stdin))){
-		if((words = indexload(load,dir))){
-		//int counter = 0;
-		valid = 0;
+	while(!(feof(f))){
+		if((words = indexload(load,dirLoad))){
+			//int counter = 0;
+			valid = 0;
 		
 			ranked=hopen(100);
 			//clear new line 
@@ -318,11 +365,13 @@ int main(int argc, char *argv[]) {
 					int z = k+1;
 					if (!(strcmp(searchArray[k], "and")) || (!(strcmp(searchArray[k],"or")))){
 						if (!(strcmp(searchArray[z], "and")) || (!(strcmp(searchArray[z],"or")))){
-							free(searchArray);
-							hclose(ranked);
-							happly(words,CIQ);
-							hclose(words);
-							exit(EXIT_FAILURE);
+							//free(searchArray);
+							//	hclose(ranked);
+							//	happly(words,CIQ);
+							//	hclose(words);
+							//	exit(EXIT_FAILURE);
+							printf("[invalid query]\n");
+							continue;
 						}
 					}
 				}
@@ -353,7 +402,13 @@ int main(int argc, char *argv[]) {
 			}
 			
 			happly(ranked,calculateRank);
-			happly(ranked,printScores);
+
+			if (argc != 6){
+				happly(ranked,printScores);
+			}
+			else{
+				happly(ranked, fprintR);
+			}
 			hclose(ranked);
 			//indexsave(words, "oof", "indexes");
 			happly(words,CIQ);
@@ -361,12 +416,13 @@ int main(int argc, char *argv[]) {
 			//printf("%d",strlen(input));
 			memset(result, '\0', sizeof(char)*100);
 			printf(">");
-			fgets(input, 100, stdin);
+			fgets(input, 100, f);
 			
 		}
 	}
 	
-	
+	fclose(f);
+	fclose(fOut);
 	//free(loadFrom);
 
 	exit(EXIT_SUCCESS);
