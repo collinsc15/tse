@@ -227,7 +227,7 @@ int main(int argc, char *argv[]) {
 			closedir(dir);
 			sprintf(crawlDir, "%s", argv[1]);
     strcpy(fileName,argv[2]);
-      loadFrom = "indexes";
+		strcpy(loadFrom, "indexes");
     char executeCommand[200] = {0};
     sprintf(executeCommand,"../indexer/indexer %s %s", crawlDir, fileName);
     int status = system(executeCommand);
@@ -331,7 +331,7 @@ int main(int argc, char *argv[]) {
 				//	printf("this is counter %d \n", counter);
 				///	}
 				if ((strcmp(searchArray[0],"and")) && (strcmp(searchArray[0], "or")) && (strcmp(searchArray[n_spaces-1],"and")) && (strcmp(searchArray[n_spaces-1], "or"))){
-					int lastOr = 0;
+					int lastOr = -1;
 					for (l=0; l < n_spaces; l++){
 						char *word=searchArray[l];
 						if (!strcmp(word,"or")){
