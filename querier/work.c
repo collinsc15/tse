@@ -202,27 +202,38 @@ int main(int argc, char *argv[]) {
 			strcpy(fileName,argv[4]);
 		}
 	}
-	else
-		{
-			printf("%d",argc);
-			printf("%s", argv[1]);
-			char* crawlDir = (char*)malloc(100*sizeof(char));
-			strcpy(crawlDir,argv[1]);
-			DIR* dir = opendir(crawlDir);
-			if (!dir){
-				printf("usage non q directory");
-				exit(EXIT_FAILURE);
-			}
-			strcpy(fileName,argv[2]);
-			loadFrom = "../indexes";
-			char executeCommand[200] = {0};
-			sprintf(executeCommand,"../indexer/indexer ../%s ../indexes/%s", crawlDir, fileName);
-			int status = system(executeCommand);
-			if (status != 0){
-				printf("cannot execute system command");
-				exit(EXIT_FAILURE);
-			}
-		}
+	else{
+  	   strcpy(loadFrom,argv[5]);
+  	   DIR* dir = opendir(loadFrom);
+  	   if (!dir){
+       printf("usage q directory");
+        exit(EXIT_FAILURE);
+      }
+      strcpy(fileName,argv[4]);
+    }
+  }
+  else
+    {
+      printf("%d",argc);
+      printf("%s", argv[1]);
+      char* crawlDir = (char*)malloc(100*sizeof(char));
+      strcpy(crawlDir,argv[1]);
+      DIR* dir = opendir(crawlDir);
+      if (!dir){
+        printf("usage non q directory");
+        exit(EXIT_FAILURE);
+      }
+    strcpy(fileName,argv[2]);
+      loadFrom = "../indexes";
+    char executeCommand[200] = {0};
+    sprintf(executeCommand,"../indexer/indexer ../%s ../indexes/%s", crawlDir, fileName);
+      int status = system(executeCommand);
+    if (status != 0){
+        printf("cannot execute system command");
+        exit(EXIT_FAILURE);
+      }
+    }
+
 	int valid = 0;
 	
 	char result[100];
