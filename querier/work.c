@@ -186,6 +186,7 @@ int main(int argc, char *argv[]) {
 		printf("usage incorrect num");
 		exit(EXIT_FAILURE);
 		}
+
 	if (argc == 6){
 		if (strcmp(argv[3],"-q")){
 			printf("usage 3 is not q");
