@@ -220,7 +220,7 @@ int main(int argc, char *argv[]) {
 			exit(EXIT_FAILURE);
 		}
 		
-			else{
+		else{
 		//sprintf(loadFrom,"%s%s","../",argv[5]);
 		// DIR* dir = opendir(loadFrom);
 		//  if (!dir){
@@ -238,7 +238,7 @@ int main(int argc, char *argv[]) {
 				 fflush(stdout);
 				 exit(EXIT_FAILURE);
 			 }
-			 	 sprintf(qOut,"%s",argv[4]);
+			 	 sprintf(queryOut,"%s",argv[5]);
 		  }
   }
 	
@@ -285,21 +285,27 @@ int main(int argc, char *argv[]) {
 
 	free(loadFrom);
 	free(fileName);
-	strcpy(qIn, queryFile);
-	strcpy(qOut, queryOut);
-	free(queryFile);
-	free(queryOut);
+	if (argc == 6){
+		printf("\n\n%s\n\n", queryOut);
+		fflush(stdout);
+		strcpy(qIn, queryFile);
+		strcpy(qOut, queryOut);
+	
 	if ( access(qIn, F_OK) == -1){
 		printf("usage: Invalid qIn file");
 		fflush(stdout);
 		exit(EXIT_FAILURE);
 		 }
+	}
+	free(queryFile);
+	free(queryOut);
 	FILE *f;
 	if (argc != 6){
 	f = stdin;
 	}
 	else{
 		f = fopen(qIn, "r");
+		printf("%s    %s", qIn, qOut);
 		fOut = fopen(qOut, "w");
 	}
 	printf(">");
@@ -307,6 +313,7 @@ int main(int argc, char *argv[]) {
 	//bool or = false;
 	
 	while(!(feof(f))){
+		bool skip =false;
 		if((words = indexload(load,dirLoad))){
 			//int counter = 0;
 			valid = 0;
@@ -347,6 +354,8 @@ int main(int argc, char *argv[]) {
 				while (word){
 					searchArray = realloc(searchArray, sizeof(word) * ++n_spaces); //reallocate for each new word
 					if (searchArray == NULL){
+						printf("Search Array realloc fail");
+						fflush(stdout);
 						exit(EXIT_FAILURE); //realloc fail
 					}
 					
@@ -369,16 +378,22 @@ int main(int argc, char *argv[]) {
 							//	hclose(ranked);
 							//	happly(words,CIQ);
 							//	hclose(words);
-							//	exit(EXIT_FAILURE);
+								//	exit(EXIT_FAILURE);
 							printf("[invalid query]\n");
-							continue;
+							skip=true;
+							//						break;
 						}
 					}
 				}
+				//if (skip){
+					//	continue;
+					//skip = false;
+					//	}
 				//			if ((strcmp(searchArray[n_spaces-1], "and")) && ((strcmp(searchArray[n_spaces-1],"or")))){
 				//counter+=1;
 				//	printf("this is counter %d \n", counter);
 				///	}
+				//	if(!skip){
 				if ((strcmp(searchArray[0],"and")) && (strcmp(searchArray[0], "or")) && (strcmp(searchArray[n_spaces-1],"and")) && (strcmp(searchArray[n_spaces-1], "or"))){
 					int lastOr = -1;
 					for (l=0; l < n_spaces; l++){
@@ -390,17 +405,21 @@ int main(int argc, char *argv[]) {
 						calculate_score(lastOr,n_spaces,words,ranked,word);
 					}
 				}
-					
+				
 				else{
-					hclose(ranked);
-					free(searchArray);
-					happly(words,CIQ);
-					hclose(words);
-					exit(EXIT_FAILURE);
+					skip = true;
+					//		hclose(ranked);
+					//free(searchArray);
+					//	happly(words,CIQ);
+					//hclose(words);
+					//exit(EXIT_FAILURE);
+					printf("[invalid query]\n");
+					//continue;
 				}
 				free(searchArray);
 			}
-			
+
+			if (!skip){
 			happly(ranked,calculateRank);
 
 			if (argc != 6){
@@ -409,20 +428,28 @@ int main(int argc, char *argv[]) {
 			else{
 				happly(ranked, fprintR);
 			}
+			}
+			else{
+				skip = false;
+			}
 			hclose(ranked);
 			//indexsave(words, "oof", "indexes");
 			happly(words,CIQ);
 			hclose(words);
 			//printf("%d",strlen(input));
+			//}
 			memset(result, '\0', sizeof(char)*100);
 			printf(">");
 			fgets(input, 100, f);
 			
 		}
 	}
-	
-	fclose(f);
+	if (f){
+		fclose(f);
+	}
+	if (fOut){
 	fclose(fOut);
+	}
 	//free(loadFrom);
 
 	exit(EXIT_SUCCESS);
