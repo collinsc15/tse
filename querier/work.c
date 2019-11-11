@@ -204,6 +204,7 @@ int main(int argc, char *argv[]) {
        		printf("usage q directory");
         	exit(EXIT_FAILURE);
             }
+			 closedir(dir);
 	   sprintf(loadFrom,argv[5]);
       strcpy(fileName,argv[4]);
        }
@@ -219,6 +220,7 @@ int main(int argc, char *argv[]) {
         printf("usage non q directory");
         exit(EXIT_FAILURE);
       }
+			closedir(dir);
 			sprintf(crawlDir, "%s", argv[1]);
     strcpy(fileName,argv[2]);
       loadFrom = "indexes";
@@ -243,11 +245,11 @@ int main(int argc, char *argv[]) {
 	printf(">");
 	fgets(input, 100, stdin);
 	//bool or = false;
-		
+	if(words =indexload(fileName,loadFrom)){	
 	while((strcmp(input, "quit\n") !=0)){
 		//int counter = 0;
 		valid = 0;
-		if(words =indexload(fileName,loadFrom)){; // make sure to have "../" when calling in bash
+		
 			ranked=hopen(100);
 			//clear new line 
 			input[strlen(input) -1] = '\0';
@@ -349,8 +351,8 @@ int main(int argc, char *argv[]) {
 			
 		}
 	}	
-	
-	
+	free(loadFrom);
+	free(fileName);
 	exit(EXIT_SUCCESS);
 	
 }
