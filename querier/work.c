@@ -118,6 +118,9 @@ void calculate_score(int lastOr,int lengthOfSA, hashtable_t *htp, hashtable_t *r
 							if (x==(lengthOfSA)){
 								newRanked->scores[x]=-20;
 							}
+							if(x==lastOr){
+								newRanked->scores[x]=-1;
+							}
 						}
 						newRanked->scores[l]=d->occurences;
 						hput(ranked,newRanked, newRanked->id, strlen(newRanked->id));
@@ -190,44 +193,48 @@ int main(int argc, char *argv[]) {
 		printf("usage incorrect num");
 		exit(EXIT_FAILURE);
 		}
+
 	if (argc == 6){
 		if (strcmp(argv[3],"-q")){
 			printf("usage 3 is not q");
 			exit(EXIT_FAILURE);
-		}
-		else{
-			strcpy(loadFrom,argv[5]);
-			DIR* dir = opendir(loadFrom);
-			if (!dir){
-				printf("usage q directory");
-				exit(EXIT_FAILURE);
-			}
-			strcpy(fileName,argv[4]);
-		}
-	}
-	else
-		{
-			printf("%d",argc);
-			printf("%s", argv[1]);
-			char* crawlDir = (char*)malloc(100*sizeof(char));
-			strcpy(crawlDir,argv[1]);
-			DIR* dir = opendir(crawlDir);
-			if (!dir){
-				printf("usage non q directory");
-				exit(EXIT_FAILURE);
-			}
-			strcpy(fileName,argv[2]);
-			loadFrom = "../indexes";
-			char executeCommand[200] = {0};
-			sprintf(executeCommand,"../indexer/indexer ../%s ../indexes/%s", crawlDir, fileName);
-			int status = system(executeCommand);
-			if (status != 0){
-				printf("cannot execute system command");
-				exit(EXIT_FAILURE);
-			}
-		}
-	//free(fileName);
-	//free(loadFrom);
+
+		}	
+	else{
+  	   sprintf(loadFrom,"%s%s","../",argv[5]);
+  	   DIR* dir = opendir(loadFrom);
+  	   if (!dir){
+       		printf("usage q directory");
+        	exit(EXIT_FAILURE);
+            }
+	   sprintf(loadFrom,argv[5]);
+      strcpy(fileName,argv[4]);
+       }
+  }
+  else
+    {
+      printf("%d",argc);
+      printf("%s", argv[1]);
+      char* crawlDir = (char*)malloc(100*sizeof(char));
+      sprintf(crawlDir,"%s%s", "../",argv[1]);
+      DIR* dir = opendir(crawlDir);
+      if (!dir){
+        printf("usage non q directory");
+        exit(EXIT_FAILURE);
+      }
+			sprintf(crawlDir, "%s", argv[1]);
+    strcpy(fileName,argv[2]);
+      loadFrom = "indexes";
+    char executeCommand[200] = {0};
+    sprintf(executeCommand,"../indexer/indexer %s %s", crawlDir, fileName);
+      int status = system(executeCommand);
+    if (status != 0){
+        printf("cannot execute system command");
+        exit(EXIT_FAILURE);
+      }
+    }
+
+
 	int valid = 0;
 	
 	char result[100];
@@ -244,7 +251,7 @@ int main(int argc, char *argv[]) {
 	while((strcmp(input, "quit\n") !=0)){
 		//int counter = 0;
 		valid = 0;
-		if(words =indexload("depth1","indexes")){; // make sure to have "../" when calling in bash
+		if(words =indexload(fileName,loadFrom)){; // make sure to have "../" when calling in bash
 			ranked=hopen(100);
 			//clear new line 
 			input[strlen(input) -1] = '\0';
@@ -312,11 +319,11 @@ int main(int argc, char *argv[]) {
 				//	printf("this is counter %d \n", counter);
 				///	}
 				if ((strcmp(searchArray[0],"and")) && (strcmp(searchArray[0], "or")) && (strcmp(searchArray[n_spaces-1],"and")) && (strcmp(searchArray[n_spaces-1], "or"))){
-					int lastOr=NULL;
+					int lastOr;
 					for (l=0; l < n_spaces; l++){
 						char *word=searchArray[l];
 						if (!strcmp(word,"or")){
-							printf("set last or");
+							//printf("set last or");
 							lastOr=l;
 						}
 						calculate_score(lastOr,n_spaces,words,ranked,word);
