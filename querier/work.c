@@ -70,8 +70,8 @@ void printScores(void *r){
 	//num=rank->scores[i];
 	//}
 	fflush(stdout);
+	}
 }
-
 void setRankOr(void *r){
 	rank_t *rank=(rank_t*)r;
 	rank->scores[l]=-1;
