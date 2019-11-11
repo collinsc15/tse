@@ -85,7 +85,7 @@ void lessThanThree(void *r){
 	rank->scores[l]=-3;
 }
 
-void calculate_score(char **searchArray,int lengthOfSA, hashtable_t *htp, hashtable_t *ranked, char *word){
+void calculate_score(int lastOr,int lengthOfSA, hashtable_t *htp, hashtable_t *ranked, char *word){
 	if ((strlen(word)<3)){ // if our word is shorter than 3
 		happly(ranked, lessThanThree);
 	}
@@ -114,6 +114,9 @@ void calculate_score(char **searchArray,int lengthOfSA, hashtable_t *htp, hashta
 							newRanked->scores[x]=0;
 							if (x==(lengthOfSA)){
 								newRanked->scores[x]=-20;
+							}
+							if(x==lastOr){
+								newRanked->scores[x]=-1
 							}
 						}
 						newRanked->scores[l]=d->occurences;
@@ -309,9 +312,14 @@ int main(int argc, char *argv[]) {
 				//	printf("this is counter %d \n", counter);
 				///	}
 				if ((strcmp(searchArray[0],"and")) && (strcmp(searchArray[0], "or")) && (strcmp(searchArray[n_spaces-1],"and")) && (strcmp(searchArray[n_spaces-1], "or"))){
+					int lastOr;
 					for (l=0; l < n_spaces; l++){
 						char *word=searchArray[l];
-						calculate_score(searchArray,n_spaces,words,ranked,word);
+						if (!strcmp(word,"or")){                                                                                                                 
+319                					//printf("set last or");                                                                                                                 
+320                					lastOr=l;                                                                                                                              
+321              				}    
+						calculate_score(lastOr,n_spaces,words,ranked,word);
 					}
 				}
 					
