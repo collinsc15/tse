@@ -62,9 +62,16 @@ void printScores(void *r){
 	rank_t *rank=(rank_t*)r;
 	int num =rank->scores[0];
 	int i =0;
+	if (rank->rank > 0){
 	printf("\nRank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
+<<<<<<< HEAD
 	//while(i<20){
 			//printf(":%d:",num);
+=======
+	}
+	//	while(i<20){
+	//printf(":%d:",num);
+>>>>>>> 558a80cf5a358911d3f4f9038a5cbe40788e9ae0
 	//i+=1;
 	//num=rank->scores[i];
 	//}
@@ -106,7 +113,7 @@ void calculate_score(int lastOr,int lengthOfSA, hashtable_t *htp, hashtable_t *r
 						chdir("../pages");
 						FILE *f=fopen(d->name,"r"); // open some file
 						fscanf(f,"%s",newRanked->url); 
-						fclose(f);
+t						fclose(f);
 						newRanked->rank=0;
 						strcpy(newRanked->id, d->name);
 						
