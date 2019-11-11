@@ -191,26 +191,16 @@ int main(int argc, char *argv[]) {
 		if (strcmp(argv[3],"-q")){
 			printf("usage 3 is not q");
 			exit(EXIT_FAILURE);
-		}
-		else{
-			strcpy(loadFrom,argv[5]);
-			DIR* dir = opendir(loadFrom);
-			if (!dir){
-				printf("usage q directory");
-				exit(EXIT_FAILURE);
-			}
-			strcpy(fileName,argv[4]);
-		}
-	}
+		}	
 	else{
   	   strcpy(loadFrom,argv[5]);
   	   DIR* dir = opendir(loadFrom);
   	   if (!dir){
-       printf("usage q directory");
-        exit(EXIT_FAILURE);
-      }
+       		printf("usage q directory");
+        	exit(EXIT_FAILURE);
+            }
       strcpy(fileName,argv[4]);
-    }
+       }
   }
   else
     {
