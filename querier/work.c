@@ -63,8 +63,8 @@ void printScores(void *r){
 	int num =rank->scores[0];
 	int i =0;
 	printf("\nRank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
-	//	while(i<20){
-	//printf(":%d:",num);
+	//while(i<20){
+			//printf(":%d:",num);
 	//i+=1;
 	//num=rank->scores[i];
 	//}
@@ -85,7 +85,7 @@ void lessThanThree(void *r){
 	rank->scores[l]=-3;
 }
 
-void calculate_score(char **searchArray,int lengthOfSA, hashtable_t *htp, hashtable_t *ranked, char *word){
+void calculate_score(int lastOr,int lengthOfSA, hashtable_t *htp, hashtable_t *ranked, char *word){
 	if ((strlen(word)<3)){ // if our word is shorter than 3
 		happly(ranked, lessThanThree);
 	}
@@ -112,6 +112,9 @@ void calculate_score(char **searchArray,int lengthOfSA, hashtable_t *htp, hashta
 						
 						for(int x=0; x<20; x++){
 							newRanked->scores[x]=0;
+							if(x==lastOr){
+								newRanked->scores[x]=-1;
+							}
 							if (x==(lengthOfSA)){
 								newRanked->scores[x]=-20;
 							}
@@ -119,6 +122,7 @@ void calculate_score(char **searchArray,int lengthOfSA, hashtable_t *htp, hashta
 						newRanked->scores[l]=d->occurences;
 						hput(ranked,newRanked, newRanked->id, strlen(newRanked->id));
 					}
+					free(d);
 					d=(doc_t*)qget(w->docs); // get its associated document queue
 				}
 			}
@@ -222,6 +226,8 @@ int main(int argc, char *argv[]) {
 				exit(EXIT_FAILURE);
 			}
 		}
+	//free(fileName);
+	//free(loadFrom);
 	int valid = 0;
 	
 	char result[100];
@@ -306,9 +312,14 @@ int main(int argc, char *argv[]) {
 				//	printf("this is counter %d \n", counter);
 				///	}
 				if ((strcmp(searchArray[0],"and")) && (strcmp(searchArray[0], "or")) && (strcmp(searchArray[n_spaces-1],"and")) && (strcmp(searchArray[n_spaces-1], "or"))){
+					int lastOr=NULL;
 					for (l=0; l < n_spaces; l++){
 						char *word=searchArray[l];
-						calculate_score(searchArray,n_spaces,words,ranked,word);
+						if (!strcmp(word,"or")){
+							printf("set last or");
+							lastOr=l;
+						}
+						calculate_score(lastOr,n_spaces,words,ranked,word);
 					}
 				}
 					
@@ -336,7 +347,7 @@ int main(int argc, char *argv[]) {
 		}
 	}	
 	
-	
+	//free(loadFrom);
 	exit(EXIT_SUCCESS);
 	
 }
