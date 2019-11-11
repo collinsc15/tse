@@ -116,7 +116,7 @@ void calculate_score(int lastOr,int lengthOfSA, hashtable_t *htp, hashtable_t *r
 								newRanked->scores[x]=-20;
 							}
 							if(x==lastOr){
-								newRanked->scores[x]=-1
+								newRanked->scores[x]=-1;
 							}
 						}
 						newRanked->scores[l]=d->occurences;
