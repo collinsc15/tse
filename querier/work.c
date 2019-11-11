@@ -1,5 +1,5 @@
 /*
-
+0;136;0c
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -259,7 +259,7 @@ int main(int argc, char *argv[]) {
 	fgets(input, 100, stdin);
 	//bool or = false;
 	
-	while((strcmp(input, "quit\n") !=0)){
+	while(!(feof(stdin))){
 		if((words = indexload(load,dir))){
 		//int counter = 0;
 		valid = 0;
