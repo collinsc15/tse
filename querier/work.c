@@ -12,8 +12,7 @@
 #define BUFFER_SIZE BUFSIZ
 
 static int l=0;
-static int counter = 0;
-static bool or =false;
+
 typedef struct doc {                                                                                                                                                                  
   char name[50];                                                                                                                                                                      
   int occurences;                                                                                                                                                                     
@@ -26,20 +25,10 @@ typedef struct word {
 
 typedef struct rankedDoc{
 	int rank;
-	int rankWithOr;
-	bool orEd;
-	bool keep;
-	int rCount;
 	int scores[20];
-	int aEnd;
 	char id[20];
 	char url[100];
 } rank_t;
-
-void setFalse(void *r){
-	rank_t *rank=(rank_t*)r;
-	rank->orEd = false;
-}
 
 void CIQ(void* hashWord){
 	qclose((((word_t*)hashWord)->docs));
@@ -74,26 +63,14 @@ void printScores(void *r){
 	int num =rank->scores[0];
 	int i =0;
 	printf("\nRank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
-	while(i<20){
-	printf(":%d:",num);
-	i+=1;
-	num=rank->scores[i];
-	}
+	//	while(i<20){
+	//printf(":%d:",num);
+	//i+=1;
+	//num=rank->scores[i];
+	//}
 	fflush(stdout);
 }
 
-
-void setR(void *r){
-	rank_t *rank=(rank_t*)r;
-	rank->rank = rank-> rankWithOr;
-}
-
-void updateRank(void *r){
-	rank_t *rank=(rank_t*)r;
-	if (rank -> rank == 0){
-		rank->rank = rank->rankWithOr;
-	}
-}
 void setRankOr(void *r){
 	rank_t *rank=(rank_t*)r;
 	rank->scores[l]=-1;
@@ -132,7 +109,7 @@ void calculate_score(char **searchArray,int lengthOfSA, hashtable_t *htp, hashta
 						fclose(f);
 						newRanked->rank=0;
 						strcpy(newRanked->id, d->name);
-						newRanked->keep=false;
+						
 						for(int x=0; x<20; x++){
 							newRanked->scores[x]=0;
 							if (x==(lengthOfSA)){
@@ -344,12 +321,7 @@ int main(int argc, char *argv[]) {
 				}
 				free(searchArray);
 			}
-			or=false;
 			
-			//printf("made it through");
-			//happly(ranked,calculateRanks);
-			//happly(ranked, setRZero);
-			//happly(ranked,updateRank);
 			happly(ranked,calculateRank);
 			happly(ranked,printScores);
 			hclose(ranked);
@@ -358,7 +330,6 @@ int main(int argc, char *argv[]) {
 			hclose(words);
 			//printf("%d",strlen(input));
 			memset(result, '\0', sizeof(char)*100);
-			counter = 0;
 			printf(">");
 			fgets(input, 100, stdin);
 			
