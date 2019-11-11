@@ -60,8 +60,8 @@ void printR(void *r){
 
 void printScores(void *r){
 	rank_t *rank=(rank_t*)r;
-	int num =rank->scores[0];
-	int i =0;
+	//	int num =rank->scores[0];
+	//int i =0;
 	if (rank->rank > 0){
 	printf("\nRank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
 	//while(i<20){
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
         	exit(EXIT_FAILURE);
             }
 			 closedir(dir);
-	   sprintf(loadFrom,argv[5]);
+			 sprintf(loadFrom,"%s",argv[5]);
       strcpy(fileName,argv[4]);
        }
   }
@@ -230,7 +230,8 @@ int main(int argc, char *argv[]) {
       loadFrom = "indexes";
     char executeCommand[200] = {0};
     sprintf(executeCommand,"../indexer/indexer %s %s", crawlDir, fileName);
-      int status = system(executeCommand);
+    int status = system(executeCommand);
+		free(crawlDir);
     if (status != 0){
         printf("cannot execute system command");
         exit(EXIT_FAILURE);
@@ -245,14 +246,21 @@ int main(int argc, char *argv[]) {
 	hashtable_t *words;
 	hashtable_t *ranked;
 
-	
+	char load[100] = {0};
+	char dir[100] = {0};
+
+	strcpy(load, fileName);
+	strcpy(dir, loadFrom);
+
+	free(loadFrom);
+	free(fileName);
 	
 	printf(">");
 	fgets(input, 100, stdin);
 	//bool or = false;
 	
 	while((strcmp(input, "quit\n") !=0)){
-			if(words =indexload(fileName,loadFrom)){
+		if((words = indexload(load,dir))){
 		//int counter = 0;
 		valid = 0;
 		
@@ -323,7 +331,7 @@ int main(int argc, char *argv[]) {
 				//	printf("this is counter %d \n", counter);
 				///	}
 				if ((strcmp(searchArray[0],"and")) && (strcmp(searchArray[0], "or")) && (strcmp(searchArray[n_spaces-1],"and")) && (strcmp(searchArray[n_spaces-1], "or"))){
-					int lastOr;
+					int lastOr = 0;
 					for (l=0; l < n_spaces; l++){
 						char *word=searchArray[l];
 						if (!strcmp(word,"or")){
@@ -357,8 +365,7 @@ int main(int argc, char *argv[]) {
 			
 		}
 	}
-	free(loadFrom);
-	free(fileName);
+	
 	
 	//free(loadFrom);
 
