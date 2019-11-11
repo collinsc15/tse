@@ -196,12 +196,13 @@ int main(int argc, char *argv[]) {
 			exit(EXIT_FAILURE);
 		}	
 	else{
-  	   strcpy(loadFrom,argv[5]);
+  	   sprintf(loadFrom,"%s%s","../",argv[5]);
   	   DIR* dir = opendir(loadFrom);
   	   if (!dir){
        		printf("usage q directory");
         	exit(EXIT_FAILURE);
             }
+	   sprintf(loadFrom,argv[5]);
       strcpy(fileName,argv[4]);
        }
   }
@@ -218,7 +219,7 @@ int main(int argc, char *argv[]) {
       }
 			sprintf(crawlDir, "%s", argv[1]);
     strcpy(fileName,argv[2]);
-      loadFrom = "../indexes";
+      loadFrom = "indexes";
     char executeCommand[200] = {0};
     sprintf(executeCommand,"../indexer/indexer %s %s", crawlDir, fileName);
       int status = system(executeCommand);
@@ -244,7 +245,7 @@ int main(int argc, char *argv[]) {
 	while((strcmp(input, "quit\n") !=0)){
 		//int counter = 0;
 		valid = 0;
-		if(words =indexload("depth1","indexes")){; // make sure to have "../" when calling in bash
+		if(words =indexload(fileName,loadFrom)){; // make sure to have "../" when calling in bash
 			ranked=hopen(100);
 			//clear new line 
 			input[strlen(input) -1] = '\0';
