@@ -62,7 +62,9 @@ void printScores(void *r){
 	rank_t *rank=(rank_t*)r;
 	int num =rank->scores[0];
 	int i =0;
+	if (rank->rank > 0){
 	printf("\nRank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
+	}
 	//	while(i<20){
 	//printf(":%d:",num);
 	//i+=1;
