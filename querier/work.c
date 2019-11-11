@@ -317,9 +317,9 @@ int main(int argc, char *argv[]) {
 					for (l=0; l < n_spaces; l++){
 						char *word=searchArray[l];
 						if (!strcmp(word,"or")){                                                                                                                 
-319                					//printf("set last or");                                                                                                                 
-320                					lastOr=l;                                                                                                                              
-321              				}    
+                					//printf("set last or");                                                                                                                 
+               					lastOr=l;                                                                                                                              
+             				}    
 						calculate_score(lastOr,n_spaces,words,ranked,word);
 					}
 				}
