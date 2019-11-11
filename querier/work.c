@@ -64,15 +64,14 @@ void printScores(void *r){
 	int i =0;
 	if (rank->rank > 0){
 	printf("\nRank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
-	}
-	//	while(i<20){
-	//printf(":%d:",num);
+	//while(i<20){
+			//printf(":%d:",num);
 	//i+=1;
 	//num=rank->scores[i];
 	//}
 	fflush(stdout);
+	}
 }
-
 void setRankOr(void *r){
 	rank_t *rank=(rank_t*)r;
 	rank->scores[l]=-1;
@@ -114,6 +113,9 @@ void calculate_score(int lastOr,int lengthOfSA, hashtable_t *htp, hashtable_t *r
 						
 						for(int x=0; x<20; x++){
 							newRanked->scores[x]=0;
+							if(x==lastOr){
+								newRanked->scores[x]=-1;
+							}
 							if (x==(lengthOfSA)){
 								newRanked->scores[x]=-20;
 							}
@@ -124,6 +126,7 @@ void calculate_score(int lastOr,int lengthOfSA, hashtable_t *htp, hashtable_t *r
 						newRanked->scores[l]=d->occurences;
 						hput(ranked,newRanked, newRanked->id, strlen(newRanked->id));
 					}
+					free(d);
 					d=(doc_t*)qget(w->docs); // get its associated document queue
 				}
 			}
@@ -196,6 +199,7 @@ int main(int argc, char *argv[]) {
 		if (strcmp(argv[3],"-q")){
 			printf("usage 3 is not q");
 			exit(EXIT_FAILURE);
+
 		}	
 	else{
   	   sprintf(loadFrom,"%s%s","../",argv[5]);
@@ -233,6 +237,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
+
 	int valid = 0;
 	
 	char result[100];
@@ -245,8 +250,9 @@ int main(int argc, char *argv[]) {
 	printf(">");
 	fgets(input, 100, stdin);
 	//bool or = false;
-	if(words =indexload(fileName,loadFrom)){	
+	
 	while((strcmp(input, "quit\n") !=0)){
+			if(words =indexload(fileName,loadFrom)){
 		//int counter = 0;
 		valid = 0;
 		
@@ -320,10 +326,10 @@ int main(int argc, char *argv[]) {
 					int lastOr;
 					for (l=0; l < n_spaces; l++){
 						char *word=searchArray[l];
-						if (!strcmp(word,"or")){                                                                                                                 
-                					//printf("set last or");                                                                                                                 
-               					lastOr=l;                                                                                                                              
-             				}    
+						if (!strcmp(word,"or")){
+							//printf("set last or");
+							lastOr=l;
+						}
 						calculate_score(lastOr,n_spaces,words,ranked,word);
 					}
 				}
@@ -350,9 +356,12 @@ int main(int argc, char *argv[]) {
 			fgets(input, 100, stdin);
 			
 		}
-	}	
+	}
 	free(loadFrom);
 	free(fileName);
+	
+	//free(loadFrom);
+
 	exit(EXIT_SUCCESS);
 	
 }
