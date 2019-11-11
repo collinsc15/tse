@@ -107,7 +107,7 @@ void calculate_score(int lastOr,int lengthOfSA, hashtable_t *htp, hashtable_t *r
 						chdir("../pages");
 						FILE *f=fopen(d->name,"r"); // open some file
 						fscanf(f,"%s",newRanked->url); 
-t						fclose(f);
+						fclose(f);
 						newRanked->rank=0;
 						strcpy(newRanked->id, d->name);
 						
