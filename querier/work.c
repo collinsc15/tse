@@ -64,14 +64,8 @@ void printScores(void *r){
 	int i =0;
 	if (rank->rank > 0){
 	printf("\nRank:%d:DocID:%s:URL:%s\n",rank->rank,rank->id,rank->url);
-<<<<<<< HEAD
 	//while(i<20){
 			//printf(":%d:",num);
-=======
-	}
-	//	while(i<20){
-	//printf(":%d:",num);
->>>>>>> 558a80cf5a358911d3f4f9038a5cbe40788e9ae0
 	//i+=1;
 	//num=rank->scores[i];
 	//}
