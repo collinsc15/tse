@@ -6,7 +6,7 @@ all:  querier
 %o: %.c %.h
 						gcc $(CFLAGS) -c $<
 querier:	
-						gcc $(CFLAGS) query.c $(LIBS) -o $@
+						gcc $(CFLAGS) work.c $(LIBS) -o $@
 
 clean:
 						rm -f *.o querier
