@@ -343,7 +343,9 @@ int main(int argc, char *argv[]) {
 			if (strlen(input)==0){
 				valid = 1;
 			}
-			
+			if(argc==6){
+				fprintf(fOut,"\nQuery:%s\n",input);
+			}
 			if(valid == 0){
 				char *word;
 				char **searchArray = NULL;
