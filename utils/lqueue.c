@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <queue.h>
+#include queue.h
 
 typedef locked_queue
 {
