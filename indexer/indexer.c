@@ -128,7 +128,7 @@ int main(int argc, char *argv[]){
 		
 			NormalizeWord(currWord);        //normalize word
 			if(strcmp(currWord,"")){        //run if valid word
-				printf("%s\n",currWord);
+				//printf("%s\n",currWord);
 				word_t *e=(word_t*)hsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
 			//sees if hash contains word
 				
@@ -192,7 +192,7 @@ int main(int argc, char *argv[]){
 	free(nameOfFile);
 	free(loadDir);
 	//fclose(f);
-	printf("words:%d",total_count);
-	printf("\nobjects:%d",total_obj);
+	//printf("words:%d",total_count);
+	//printf("\nobjects:%d",total_obj);
 	return 0;
 }
