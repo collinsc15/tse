@@ -9,15 +9,16 @@
  * 
  */
 #include <hash.h>
+#include <pthread.h>
 
 typedef struct lockedhash_t{
-	hashtable_t hash;
+	hashtable_t *hash;
 	pthread_mutex_t lock;
 };
 
-lockedhash_t lhopen(){
+lockedhash_t lhopen(int32_t hsize){
 	lockedhash_t *lhtp= (lockedhash_t *)malloc(sizeof(lockedhash_t));
-	hashtable_t lhtp->hash=hopen();
+	hashtable_t lhtp->hash=hopen(hsize);
 	pthread_mutex_init(&lhtp->lock,NULL);
 	return lhtp;
 }
@@ -47,8 +48,9 @@ void *lhsearch(lockedhash_t *lhtp,
         const char *key,                                                                                                         
 							int32_t keylen){
 	pthread_mutex_lock(&(lhtp->lock));
-	hsearch(lhtp->hash, searchfn, key, keylen);
+	void *ele=hsearch(lhtp->hash, searchfn, key, keylen);
 	pthread_mutex_unlock(&(lhtp->lock));
+	return ele;
 }
 
 void *lhremove(hashtable_t *lhtp,                                                                                                  
@@ -56,6 +58,7 @@ void *lhremove(hashtable_t *lhtp,
 							const char *key,                                                                                                         
 							int32_t keylen){
 	pthread_mutex_lock(&(lhtp->lock));
-	hremove(lhtp->hash, searchfn, key, keylen);
+	void *ele=hremove(lhtp->hash, searchfn, key, keylen);
 	pthread_mutex_unlock(&(lhtp->lock));
+	return ele;
 }
