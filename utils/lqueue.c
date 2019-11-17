@@ -12,63 +12,63 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <queue.h>
-#include <lqueue.h>
+#include "queue.h"
+#include "lqueue.h"
 
-typedef locked_queue
+typedef struct locked_queue
 {
 	queue_t* queue;
 	pthread_mutex_t lock;
 } lockedQ;
 	
-void lqopen(void)
+void* lqopen(void)
 {
 	lockedQ* newLockedQ = malloc(sizeof(lockedQ));
-	newLockedQ -> queue = qopen();
-	pthread_mutex_init(newLockedQ->lock, NULL); 
+	(newLockedQ -> queue) = qopen();
+	pthread_mutex_init((newLockedQ->lock), NULL); 
 }
 
-void lqclose(lockedQ *qp)
+void lqclose(void *qp)
 {
-	pthread_mutex_lock(qp -> lock);
+	pthread_mutex_lock((((lockedQ*)qp) -> lock));
 	sleep(10);
-	qclose(qp -> queue);
-	pthread_mutex_unlock(qp -> lock);
-	pthread_mutex_destroy(qp -> lock);
-	free(qp);
+	qclose((((lockedQ*)qp) -> queue));
+	pthread_mutex_unlock((((lockedQ*)qp) -> lock));
+	pthread_mutex_destroy((((lockedQ*)qp) -> lock));
+	free(((lockedQ*)qp));
 }
 
-int32_t lqput(lockedQ *qp, void *elementp)
+int32_t lqput(void *qp, void *elementp)
 {
-	pthread_mutex_lock(qp -> lock);
+	pthread_mutex_lock((qp -> lock));
 	sleep(10);
-	qput(qp -> queue, elementp);
-	pthread_mutex_unlock(qp -> unlock);
+	qput((qp -> queue), elementp);
+	pthread_mutex_unlock((qp -> lock));
 }
 
-void *lqget(lockedQ *qp)
+void *lqget(void *qp)
 {
-	pthread_mutex_lock(qp -> lock);
+	pthread_mutex_lock((((lockedQ*)qp) -> lock));
 	sleep(10);
-	void* element = qpget(qp -> queue);
-	pthread_mutex_unlock(qp -> unlock);
+	void* element = qget((((lockedQ*)qp) -> queue));
+	pthread_mutex_unlock((((lockedQ*)qp) -> lock));
 	return element;
 }
 
-void lqapply(lockedQ *qp, void(*fn)(void* elementp))
+void lqapply(void *qp, void(*fn)(void* elementp))
 {
-	pthread_mutex_lock(qp -> lock);
+	pthread_mutex_lock((((lockedQ*)qp) -> lock));
 	sleep(10);
-	qapply(qp->queue, void(*fn)(void* elementp));
-	pthread_mutex_unlock(qp ->unlock);
+	qapply((((lockedQ*)qp)->queue), void(*fn)(void* elementp));
+	pthread_mutex_unlock((((lockedQ*)qp) ->lock));
 }
 
-void* lqsearch(lockedQ *qp, bool(*searchfn)(void* elementp. const void* keyp), const void* skeyp)
+void* lqsearch(void *qp, bool(*searchfn)(void* elementp. const void* keyp), const void* skeyp)
 {
-	pthread_mutex_lock(qp->lock);
+	pthread_mutex_lock((((lockedQ*)qp)->lock));
 	sleep(10);
-	void* element = qsearch(qp -> queue, bool(*searchfn)(void* elementp. const void* keyp), const void* skeyp);
-	pthread_mutex_unlock(qp -> unlock);
+	void* element = qsearch((((lockedQ*)qp) -> queue), bool(*searchfn)(void* elementp. const void* keyp), const void* skeyp);
+	pthread_mutex_unlock((((lockedQ*)qp) -> lock));
 	return element;
 }
 
