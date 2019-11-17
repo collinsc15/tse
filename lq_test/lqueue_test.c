@@ -11,6 +11,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../utils/lqueue.h"
+#include "../utils/queue.h"
+#include "../utils/queue.c"
 #include "../utils/lqueue.c"
 #include <pthread.h>
 
@@ -28,23 +30,26 @@ bool get5(void *p, const void *keyp)
 	return false;
 }
 
-void tfunc1(lqueue_t *lq)
+void *tfunc1(lqueue_t *lq)
 {
-	lqput(lq, 5);
+	lqput(lq, (void*)5);
+	return lq;
 }
 
-void tfunc2(lqueue_t *lq)
+void *tfunc2(lqueue_t *lq)
 {
-	int element = lqsearch(lq, get5, 3);
+	int  element = *(int*)(lqsearch(lq, get5, (const void*)3));
+	printf("%d", element);
+	return (void*)((int*)element);
 }
 
-void main()
+int main(void)
 {
 	pthread_t tid1, tid2;
 	lqueue_t *lqOne = lqopen();
-	lqput(lqOne, 1);
-	lqput(lqOne, 2);
-	lqput(lqOne, 3);
+	lqput(lqOne, (void*)1);
+	lqput(lqOne, (void*)2);
+	lqput(lqOne, (void*)3);
 
 	
 	if (pthread_create(&tid1, NULL, tfunc1, lqOne)!=0)
@@ -64,4 +69,5 @@ void main()
 		{
 			exit(EXIT_FAILURE);
 		}
+	exit(EXIT_SUCCESS);
 }
