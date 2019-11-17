@@ -28,16 +28,19 @@ void make5(void *ep)
 
 bool get5(void *p, const void *keyp)
 {
-	//	if (*((int*)p) == 5)
-	//	{
+	int *g=(int*)p; 
+	if (*g== 5)
+	{
 			return true;
-			//	}
-			//	return false;
+	}
+	return false;
 }
 
 void *tfunc1(lqueue_t *lq)
 {
-	lqput(lq, (void*)5);
+	int *d=(int *)malloc(sizeof(int));
+	*d=5;
+	lqput(lq, (void*)d);
 	return lq;
 }
 
@@ -45,6 +48,7 @@ void *tfunc2(lqueue_t *lq)
 {
 	int  element = *(int*)(lqsearch(lq, get5, (const void*)3));
 	printf("%d", element);
+	fflush(stdout);
 	return lq;
 }
 
