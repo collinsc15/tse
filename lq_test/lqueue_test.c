@@ -1,5 +1,5 @@
 /* lqueue_test.c --- 
- * 
+0;136;0c0;136;0c0;136;0c * 
  * 
  * Author: Vlado Vojdanovski
  * Created: Sat Nov 16 18:00:31 2019 (-0500)
@@ -23,11 +23,11 @@ void make5(void *ep)
 
 bool get5(void *p, const void *keyp)
 {
-	if ((*(int*)p) == 5)
-		{
+	//	if (*((int*)p) == 5)
+	//	{
 			return true;
-		}
-	return false;
+			//	}
+			//	return false;
 }
 
 void *tfunc1(lqueue_t *lq)
@@ -40,16 +40,19 @@ void *tfunc2(lqueue_t *lq)
 {
 	int  element = *(int*)(lqsearch(lq, get5, (const void*)3));
 	printf("%d", element);
-	return (void*)((int*)element);
+	return lq;
 }
 
 int main(void)
 {
 	pthread_t tid1, tid2;
 	lqueue_t *lqOne = lqopen();
-	lqput(lqOne, (void*)1);
-	lqput(lqOne, (void*)2);
-	lqput(lqOne, (void*)3);
+	int a=1;
+	int b=2;
+	int c=3;
+	lqput(lqOne, (void*)&a);
+	lqput(lqOne, (void*)&b);
+	lqput(lqOne, (void*)&c);
 
 	
 	if (pthread_create(&tid1, NULL, tfunc1, lqOne)!=0)
@@ -69,5 +72,6 @@ int main(void)
 		{
 			exit(EXIT_FAILURE);
 		}
+	lqclose(lqOne);
 	exit(EXIT_SUCCESS);
 }
