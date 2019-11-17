@@ -1,5 +1,5 @@
 /* lqueue.c --- 
- * 
+0;136;0c * 
  * 
  * Author: Vlado Vojdanovski
  * Created: Thu Nov 14 18:21:25 2019 (-0500)
@@ -31,14 +31,14 @@ void* lqopen(void)
 		}
 	(newLockedQ -> queue) = qopen();
 	pthread_mutex_init(&(newLockedQ->lock), NULL);
-	return newLockedQ;
+	return (void*)newLockedQ;
 }
 
 void lqclose(void *qp)
 {
 	pthread_mutex_lock(&(((lockedQ*)qp) -> lock));
 	sleep(10);
-	qclose((&((lockedQ*)qp) -> queue));
+	//qclose((((lockedQ*)qp)->queue));
 	pthread_mutex_unlock(&(((lockedQ*)qp) -> lock));
 	pthread_mutex_destroy(&(((lockedQ*)qp) -> lock));
 	free(((lockedQ*)qp));
