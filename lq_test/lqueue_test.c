@@ -16,6 +16,11 @@
 #include "../utils/lqueue.c"
 #include <pthread.h>
 
+typedef struct ppl{                                                             
+  int year;                                                                     
+  //char name[10];                                                              
+} ppl_t;  
+
 void make5(void *ep)
 {
 	(*(int*)ep) = 5;
@@ -47,12 +52,15 @@ int main(void)
 {
 	pthread_t tid1, tid2;
 	lqueue_t *lqOne = lqopen();
-	int a=1;
-	int b=2;
-	int c=3;
-	lqput(lqOne, (void*)&a);
-	lqput(lqOne, (void*)&b);
-	lqput(lqOne, (void*)&c);
+	int *a=(int *)malloc(sizeof(int));
+	*a=1;
+	int *b=(int *)malloc(sizeof(int));
+	*b=2;
+	int *c=(int *)malloc(sizeof(int));
+	*c=3;
+	lqput(lqOne, (void*)a);
+	lqput(lqOne, (void*)b);
+	lqput(lqOne, (void*)c);
 
 	
 	if (pthread_create(&tid1, NULL, tfunc1, lqOne)!=0)
