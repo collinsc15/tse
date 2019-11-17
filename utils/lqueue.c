@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include "queue.h"
 #include "lqueue.h"
+#include <unistd.h>
 
 typedef struct locked_queue
 {
@@ -23,9 +24,14 @@ typedef struct locked_queue
 	
 void* lqopen(void)
 {
-	lockedQ* newLockedQ = malloc(sizeof(lockedQ));
+	lockedQ* newLockedQ = (lockedQ*)malloc(sizeof(lockedQ));
+	if(!(newLockedQ))
+		{
+			return NULL;
+		}
 	(newLockedQ -> queue) = qopen();
-	pthread_mutex_init(&(newLockedQ->lock), NULL); 
+	pthread_mutex_init(&(newLockedQ->lock), NULL);
+	return newLockedQ;
 }
 
 void lqclose(void *qp)
@@ -40,10 +46,15 @@ void lqclose(void *qp)
 
 int32_t lqput(void *qp, void *elementp)
 {
-	pthread_mutex_lock((qp -> lock));
+	pthread_mutex_lock(&(((lockedQ*)qp) -> lock));
 	sleep(10);
-	qput((qp -> queue), elementp);
-	pthread_mutex_unlock((qp -> lock));
+	if(!qput((((lockedQ*)qp) -> queue), elementp))
+		{
+			pthread_mutex_unlock(&(((lockedQ*)qp) -> lock));
+			return 1;
+		}
+	pthread_mutex_unlock(&(((lockedQ*)qp) -> lock));
+	return 0;
 }
 
 void *lqget(void *qp)
@@ -59,15 +70,15 @@ void lqapply(void *qp, void(*fn)(void* elementp))
 {
 	pthread_mutex_lock(&(((lockedQ*)qp) -> lock));
 	sleep(10);
-	qapply(&(((lockedQ*)qp)->queue), void(*fn)(void* elementp));
+	qapply((((lockedQ*)qp)->queue), fn);
 	pthread_mutex_unlock(&(((lockedQ*)qp) ->lock));
 }
 
-void* lqsearch(void *qp, bool(*searchfn)(void* elementp. const void* keyp), const void* skeyp)
+void* lqsearch(void *qp, bool(*searchfn)(void* elementp, const void* keyp), const void* skeyp)
 {
 	pthread_mutex_lock(&(((lockedQ*)qp)->lock));
 	sleep(10);
-	void* element = qsearch(&(((lockedQ*)qp) -> queue), bool(*searchfn)(void* elementp. const void* keyp), const void* skeyp);
+	void* element = qsearch((((lockedQ*)qp) -> queue),searchfn, skeyp);
 	pthread_mutex_unlock(&(((lockedQ*)qp) -> lock));
 	return element;
 }
