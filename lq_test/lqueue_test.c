@@ -23,13 +23,13 @@ typedef struct ppl{
 
 void make5(void *ep)
 {
-	(*(int*)ep) = 5;
+	((ppl_t*)ep)->year = 5;
 }
 
 bool get5(void *p, const void *keyp)
 {
-	int *g=(int*)p; 
-	if (*g== 5)
+	ppl_t *g=(ppl_t*)p; 
+	if (g->year== 5)
 	{
 			return true;
 	}
@@ -38,52 +38,55 @@ bool get5(void *p, const void *keyp)
 
 void *tfunc1(lqueue_t *lq)
 {
-	int *d=(int *)malloc(sizeof(int));
-	*d=5;
+	ppl_t *d=(ppl_t *)malloc(sizeof(ppl_t));
+	d->year=5;
 	lqput(lq, (void*)d);
 	return lq;
 }
 
 void *tfunc2(lqueue_t *lq)
 {
-	int  element = *(int*)(lqsearch(lq, get5, (const void*)3));
-	printf("%d", element);
+	ppl_t *element = ((ppl_t*)lqsearch(lq, get5, (const void*)5));
+	if (element){
+		printf("%d", element->year);
+	}
 	fflush(stdout);
 	return lq;
 }
 
 int main(void)
 {
-	pthread_t tid1, tid2;
+	pthread_t tid1;
+	pthread_t tid2;
 	lqueue_t *lqOne = lqopen();
-	int *a=(int *)malloc(sizeof(int));
-	*a=1;
-	int *b=(int *)malloc(sizeof(int));
-	*b=2;
-	int *c=(int *)malloc(sizeof(int));
-	*c=3;
+	ppl_t *a=(ppl_t *)malloc(sizeof(ppl_t));
+	a->year=1;
+	ppl_t *b=(ppl_t *)malloc(sizeof(ppl_t));
+	b->year=2;
+	ppl_t *c=(ppl_t *)malloc(sizeof(ppl_t));
+	c->year=3;
 	lqput(lqOne, (void*)a);
 	lqput(lqOne, (void*)b);
 	lqput(lqOne, (void*)c);
 
 	
 	if (pthread_create(&tid1, NULL, tfunc1, lqOne)!=0)
-		{
-			exit(EXIT_FAILURE);
-		}
-	if (pthread_create(&tid2, NULL, tfunc2, lqOne)!=0)
-		{
-			exit(EXIT_FAILURE);
-		}
+	{
+		exit(EXIT_FAILURE);
+	}
+		if (pthread_create(&tid2, NULL, tfunc2, lqOne)!=0)
+	{
+		exit(EXIT_FAILURE);
+	}
 
-	if (pthread_join(tid1, NULL) != 0)
+		if (pthread_join(tid1, NULL) != 0)
 		{
 			exit(EXIT_FAILURE);
 		}
 	if (pthread_join(tid2, NULL) != 0)
-		{
-			exit(EXIT_FAILURE);
-		}
+	{
+		exit(EXIT_FAILURE);
+	}
 	lqclose(lqOne);
 	exit(EXIT_SUCCESS);
 }
