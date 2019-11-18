@@ -37,7 +37,7 @@ typedef struct args {
 
 typedef struct word {
 	char name[50];
-	queue_t *docs;
+	lqueue_t *docs;
 } word_t;
 
 void add(void *docq){
@@ -45,25 +45,28 @@ void add(void *docq){
 }
 
 void adderFunc(void* hashWord) {
-	qapply(((word_t*)hashWord)->docs,add);
+	lqapply(((word_t*)hashWord)->docs,add);
 				 //total_count += ((word_t*)hashWord) -> occurences; // add the datA to the totalCount
 	//printf("%s:%d\n",((word_t*)hashWord)->name,((word_t*)hashWord)->occurences)
 }
 
 void docSprintf(void *doc){ 
-  fprintf(hashFile," %s",((doc_t*)doc)->name); 
-  fprintf(hashFile," %d ",((doc_t*)doc)->occurences); 
+  fprintf(hashFile," %s",((doc_t*)doc)->name);
+	//fprintf(hashFile," NAME:%s",((doc_t*)doc)->name); 
+  //fprintf(hashFile," OCCURENCES:%d ",((doc_t*)doc)->occurences);
+	fprintf(hashFile," %d ",((doc_t*)doc)->occurences); 
 }
 
 void indexSprintf(void* hashWord){
-  fprintf(hashFile,"%s",((word_t*)hashWord)->name);  
-  qapply(((word_t*)hashWord)->docs, docSprintf); 
+  fprintf(hashFile,"%s",((word_t*)hashWord)->name);
+	//fprintf(hashFile,"WORD:%s",((word_t*)hashWord)->name);  
+  lqapply(((word_t*)hashWord)->docs, docSprintf); 
   fprintf(hashFile,"\n");                                                                                                                                                                                                                                                                   
 }
 
 
 void closeThoseDamnQueues(void* hashWord) {
-  qclose(((word_t*)hashWord)->docs); // add the datA to the totalCount
+  lqclose(((word_t*)hashWord)->docs); // add the datA to the totalCount
 }
 
 void addObj(void* hashWord){
@@ -107,9 +110,11 @@ void NormalizeWord(char word[]){
 }
 
 void *makeIndex(void *arg){
-	int num = 1;
+	args_t *args= (args_t *)arg;
+	int num = args->threadNum;
 	webpage_t* w;
-	while ((w = pageload(num, "pages"))){
+	lockedhash_t *wordHash=args->index;
+	while ((w = pageload(num, args->loadDir))){
 		webpage_fetch(w);
 		char id[5];
 		sprintf(id,"%d",num);
@@ -125,7 +130,7 @@ void *makeIndex(void *arg){
 			//sees if hash contains word
 				
 				if (e){  //if hash contains word
-					doc_t *d=(doc_t*)qsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
+					doc_t *d=(doc_t*)lqsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
 					if(d!=NULL){           //if it does
 						d->occurences += 1; // add 1 to the word occurence
 					}
@@ -138,7 +143,7 @@ void *makeIndex(void *arg){
 						memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
 						strcpy(newDoc->name, id);
 						newDoc->occurences=1;
-						qput(e->docs,newDoc);      //put doc in word queue
+						lqput(e->docs,newDoc);      //put doc in word queue
 					}
 				}
 				else {             // if hash does not contain word
@@ -149,7 +154,7 @@ void *makeIndex(void *arg){
 					}
 					memset(newWord->name, 0,(50*sizeof(newWord->name[0])));
 					strcpy(newWord->name, currWord);
-					newWord->docs=qopen();
+					newWord->docs=lqopen();
 					doc_t *newDoc;     //create doc
 					if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
 						printf("malloc issue");
@@ -157,7 +162,7 @@ void *makeIndex(void *arg){
 					}
 					strcpy(newDoc->name, id);
 					newDoc->occurences=1;
-					qput(newWord->docs,newDoc);
+					lqput(newWord->docs,newDoc);
 					lhput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
 				}		
 			}
@@ -167,7 +172,7 @@ void *makeIndex(void *arg){
 		}
 		//free(webpage_getURL(w));
 		webpage_delete(w);
-		num+=1;
+		num+=args->modNum;
 	//free(currWord);
 	}
 
@@ -175,14 +180,15 @@ void *makeIndex(void *arg){
 	return NULL;
 }
 
-void generateThreads(int num, lockedhash_t *wordHash){
+void generateThreads(int num, char* dirName, lockedhash_t *wordHash){
 	pthread_t threads[num];
 	args_t *args[num];
 	for(int i=0; i<num; i++){
 		args[i]=(args_t *)malloc(sizeof(args_t));
 		args[i]->index=wordHash;
 		args[i]->modNum=num;
-		args[i]->threadNum=i;
+		args[i]->threadNum=i+1;
+		args[i]->loadDir=dirName;
 		pthread_create(&(threads[i]), NULL, makeIndex, (void *)args[i]);
 	}
 	for(int i=0; i<num; i++){
@@ -193,8 +199,8 @@ void generateThreads(int num, lockedhash_t *wordHash){
 }
 
 int main(int argc, char *argv[]){
-	if (argc != 3){
-		printf("usage: indexer <pagedir> <indexnm>\n");
+	if (argc != 4){
+		printf("usage: indexer <pagedir> <indexnm> <numThreads>\n");
 		exit(EXIT_FAILURE);
 	}
 	//long int num=atol(argv[1]);
@@ -209,9 +215,9 @@ int main(int argc, char *argv[]){
 	char fullSave[100] = {0};
 	sprintf(fullSave,"%s%s",saveDir,nameOfFile);
 	strcpy(loadDir, argv[1]); // NEED TO: change 2 to 1
-
+	long int num=atol(argv[3]);
 	
-	makeIndex(wordHash);
+	generateThreads(num, loadDir, wordHash);
 	
 	//webpage_delete(w);
 	lhapply(wordHash, adderFunc); // calculate total_count
