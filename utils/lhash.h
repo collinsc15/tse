@@ -6,7 +6,7 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include <hash.h>
+#include "hash.h"
 #include <pthread.h>
 
 typedef void lockedhash_t;	/* representation of a hashtable hidden */

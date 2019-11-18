@@ -3,7 +3,7 @@
  *
  */
 #include <stdint.h>
-#include <queue.h>
+#include "queue.h"
 #include <stdlib.h>
 /* 
  * SuperFastHash() -- produces a number between 0 and the tablesize-1.
