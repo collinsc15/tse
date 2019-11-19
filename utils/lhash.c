@@ -8,7 +8,7 @@
  * Description: 
  * 
  */
-#include "hash.h"
+#include <hash.h>
 #include <pthread.h>
 #include <stdlib.h>
 
@@ -66,4 +66,19 @@ void *lhremove(lockedhash_t *lhtp,
 	void *ele=hremove(lhtp->hash, searchfn, key, keylen);
 	pthread_mutex_unlock(&(lhtp->lock));
 	return ele;
+}
+
+void *lhadd(lockedhash_t *lhtp, bool (*searchfn)(void* elementp, const void* searchkeyp), const char *key, int32_t keylen, void *pObj){
+	pthread_mutex_lock(&(lhtp->lock));
+	void *ele=hsearch(lhtp->hash, searchfn, key, keylen);
+	if (ele){
+		//free(pObj);
+		pthread_mutex_unlock(&(lhtp->lock));
+		return ele;
+	}
+	else {
+		hput(lhtp->hash, pObj, key,keylen);
+		pthread_mutex_unlock(&(lhtp->lock));
+		return pObj;
+	}
 }

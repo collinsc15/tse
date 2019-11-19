@@ -120,34 +120,13 @@ void *makeIndex(void *arg){
 		sprintf(id,"%d",num);
 		int pos = 0;
 		char *currWord;
-  
-		while ((pos = webpage_getNextWord(w, pos, &currWord)) > 0) { //for words in webpage w
 		
+		while ((pos = webpage_getNextWord(w, pos, &currWord)) > 0) { //for words in webpage w
+			
 			NormalizeWord(currWord);        //normalize word
 			if(strcmp(currWord,"")){        //run if valid word
 				//printf("%s\n",currWord);
-				word_t *e=(word_t*)lhsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
-			//sees if hash contains word
-				
-				if (e){  //if hash contains word
-					doc_t *d=(doc_t*)lqsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
-					if(d!=NULL){           //if it does
-						d->occurences += 1; // add 1 to the word occurence
-					}
-					else{
-						doc_t *newDoc;                           //create new doc
-						if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
-							printf("malloc issue");
-							return NULL;
-					}
-						memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
-						strcpy(newDoc->name, id);
-						newDoc->occurences=1;
-						lqput(e->docs,newDoc);      //put doc in word queue
-					}
-				}
-				else {             // if hash does not contain word
-					word_t* newWord;    //creates word
+				word_t* newWord;    //creates word
 					if (!(newWord=(word_t*) malloc(sizeof(word_t)))){
 						printf("malloc issue");
 						return NULL;
@@ -155,16 +134,60 @@ void *makeIndex(void *arg){
 					memset(newWord->name, 0,(50*sizeof(newWord->name[0])));
 					strcpy(newWord->name, currWord);
 					newWord->docs=lqopen();
-					doc_t *newDoc;     //create doc
+					word_t *hashWord=(word_t *)lhadd(wordHash, hashContainsWord, currWord, strlen(currWord), (void *)newWord);
+					if(hashWord!=newWord){
+						lqclose(newWord->docs);
+						free(newWord);
+					}
+					doc_t *newDoc;                           //create new doc
 					if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
 						printf("malloc issue");
 						return NULL;
 					}
+					memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
 					strcpy(newDoc->name, id);
-					newDoc->occurences=1;
-					lqput(newWord->docs,newDoc);
-					lhput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
-				}		
+					newDoc->occurences=0;
+					doc_t *doc= (doc_t *)lqadd(hashWord->docs,queueContainsDoc, id, (void *)newDoc);
+					doc->occurences+=1;
+					//word_t *e=(word_t*)lhsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
+				//sees if hash contains word
+				
+					//	if (e){  //if hash contains word
+					//doc_t *d=(doc_t*)lqsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
+					//if(d!=NULL){           //if it does
+				//d->occurences += 1; // add 1 to the word occurence
+					//}
+					//else{
+					//doc_t *newDoc;                           //create new doc
+					//if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
+					//	printf("malloc issue");
+					//	return NULL;
+					//}
+					//memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
+					//strcpy(newDoc->name, id);
+					//newDoc->occurences=1;
+					//lqput(e->docs,newDoc);      //put doc in word queue
+					//}
+					//}
+					//else {             // if hash does not contain word
+					//word_t* newWord;    //creates word
+					//if (!(newWord=(word_t*) malloc(sizeof(word_t)))){
+					//printf("malloc issue");
+					//return NULL;
+					//}
+					//memset(newWord->name, 0,(50*sizeof(newWord->name[0])));
+					//strcpy(newWord->name, currWord);
+					//newWord->docs=lqopen();
+					//doc_t *newDoc;     //create doc
+					//if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
+					//printf("malloc issue");
+					//return NULL;
+					//}
+					//strcpy(newDoc->name, id);
+					//newDoc->occurences=1;
+					//lqput(newWord->docs,newDoc);
+					//lhput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
+					//}		
 			}
 			//printf("w:%d",sizeof(webpage_t));
 			
@@ -173,10 +196,10 @@ void *makeIndex(void *arg){
 		//free(webpage_getURL(w));
 		webpage_delete(w);
 		num+=args->modNum;
-	//free(currWord);
+		//free(currWord);
 	}
-
-
+	
+	
 	return NULL;
 }
 
@@ -231,6 +254,7 @@ int main(int argc, char *argv[]){
 	lhclose(wordHash);
 	free(nameOfFile);
 	free(loadDir);
+	fflush(stdout);
 	//fclose(f);
 	//printf("words:%d",total_count);
 	//printf("\nobjects:%d",total_obj);

@@ -6,7 +6,7 @@
  */
 #include <stdint.h>
 #include <stdbool.h>
-#include "hash.h"
+#include <hash.h>
 #include <pthread.h>
 
 typedef void lockedhash_t;	/* representation of a hashtable hidden */
@@ -43,3 +43,4 @@ void *lhremove(lockedhash_t *lhtp,
 	      const char *key, 
 	      int32_t keylen);
 
+void *lhadd(lockedhash_t *lhtp, bool (*searchfn)(void* elementp, const void* searchkeyp), const char *key, int32_t keylen, void *pObj);

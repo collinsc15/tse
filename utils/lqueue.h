@@ -45,3 +45,4 @@ void* lqsearch(lqueue_t *qp,
 //void* qremove(lqueue_t *qp,
 //							bool (*searchfn)(void* elementp,const void* keyp),
 //							const void* skeyp);
+void *lqadd(void *qp, bool(*searchfn)(void* elementp, const void* keyp), const void* skeyp, void *initElement);
