@@ -1,11 +1,12 @@
 /* crawler.c --- crawls a website
-0;136;0c0;136;0c0;136;0c0;136;0c * 
  * Author: Claire C. Collins
  * Created: Fri Oct 18 13:52:36 2019 (-0400)
  * Edited by: Vlado Vojdanovski, Sat Oct 19
- * Version: 
- * 
- * Description: 
+ * Description:  The crawler has the following usage:
+ * crawler <seedurl> <pagedir> <max depth> where:
+        • seed url is the starting url where the crawl begins,
+	• pagedir is where the saved pages are stored, and 
+	• maxdepth is the  maximum  depth that the  crawler may crawl;  it should  be  non-negative.
  * 
  */
 #define _POSIX_SOURCE
@@ -22,8 +23,6 @@
 
 
 int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
-	
-	//	free(webpage_getHTML(pagep));
 	webpage_fetch(pagep); // self-evident
 	char* url = webpage_getURL(pagep); // self-evident
 	char* htmlCode = webpage_getHTML(pagep); // self-evident
@@ -31,7 +30,7 @@ int32_t pagesave(webpage_t *pagep, long int id, char *dirname){
 	int sizeh = 0;
 	sizeh = webpage_getHTMLlen(pagep); // we grab the charsize of the html of our page
 	int size;
-  size = sizeh+300; // we add an extra 100 to store the other data we will be using
+  	size = sizeh+300; // we add an extra 100 to store the other data we will be using
 	FILE *f; // create a file object pointer
 	char webpageData[size]; // the data we will be storing in our webpage file 
 	//struct stat dirn;
@@ -95,7 +94,6 @@ int main(int argc, char* argv[]){
 		hclose(hashOfPages);
 		exit(EXIT_FAILURE);
 	}
-	//	free(seed);
 
 	char *content=webpage_getHTML(w); //gets html of website
 	free(content);
@@ -143,11 +141,6 @@ int main(int argc, char* argv[]){
 			// while there are URLs to be read
 			while((pos = webpage_getNextURL(w, pos, &currPageURL)) > 0 ) {
 				if (IsInternalURL(currPageURL)){    //if the url is internal
-					
-					//webpage_fetch(currPage);
-					//char currURL[100]; //store the URL in a char array
-					//strcpy(currURL, currPageURL);
-					//NormalizeURL(currURL);
 					void* hashSearch = hsearch(hashOfPages,hashContainsURL,currPageURL, strlen(currPageURL)); //read in the result of the search
 					if ((!hashSearch) && (webpage_getDepth(w) < maxIter)){ // if we got a NULL pointer
 						webpage_t* currPage=webpage_new(currPageURL,(webpage_getDepth(w)+1), NULL); // create our web page
@@ -162,19 +155,13 @@ int main(int argc, char* argv[]){
 					free(currPageURL);
 				}				
 			}
-			//free(currPageURL);
 		 	free(html);
-			pagesave(w,curr_id,ph);
-			// save the page of interest
-			webpage_delete(w);         //deletes webpage
+			pagesave(w,curr_id,ph);	// save the page of interest
+			webpage_delete(w); //deletes webpage
 			curr_id += 1;
 			}
 		}
-	//	free(currPageURL);
-	//	    free(seed);
 			hclose(hashOfPages); // closes hash table
 			qclose(qOfWebPages); // closes queue
-			//			free(seed);
-			exit(EXIT_SUCCESS);
-		
+			exit(EXIT_SUCCESS);	
 }
