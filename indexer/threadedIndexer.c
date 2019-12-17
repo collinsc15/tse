@@ -1,11 +1,10 @@
 /* indexer.c --- 
-1;5202;0c * 
  * 
- * Author: Claire C. Collins
+ * Author: Claire C. Collins, Vlado Vojdanovski
  * Created: Sun Oct 27 18:39:02 2019 (-0400)
- * Version: 
- * 
- * Description: 
+ * Description: An elegant multi-threaded implementation of our indexer. Uses several helper functions as well as a
+ * helper struct to ensure the main loop is as clean as readable as possible. We ensure that no webpage is indexed twice by using 
+ * modular arithmetic. The shared resource is the document we save the indeces in.
  * 
  */
 #include <stdio.h>
@@ -46,27 +45,22 @@ void add(void *docq){
 
 void adderFunc(void* hashWord) {
 	lqapply(((word_t*)hashWord)->docs,add);
-				 //total_count += ((word_t*)hashWord) -> occurences; // add the datA to the totalCount
-	//printf("%s:%d\n",((word_t*)hashWord)->name,((word_t*)hashWord)->occurences)
 }
 
 void docSprintf(void *doc){ 
   fprintf(hashFile," %s",((doc_t*)doc)->name);
-	//fprintf(hashFile," NAME:%s",((doc_t*)doc)->name); 
-  //fprintf(hashFile," OCCURENCES:%d ",((doc_t*)doc)->occurences);
-	fprintf(hashFile," %d ",((doc_t*)doc)->occurences); 
+  fprintf(hashFile," %d ",((doc_t*)doc)->occurences); 
 }
 
 void indexSprintf(void* hashWord){
   fprintf(hashFile,"%s",((word_t*)hashWord)->name);
-	//fprintf(hashFile,"WORD:%s",((word_t*)hashWord)->name);  
   lqapply(((word_t*)hashWord)->docs, docSprintf); 
   fprintf(hashFile,"\n");                                                                                                                                                                                                                                                                   
 }
 
 
 void closeThoseDamnQueues(void* hashWord) {
-  lqclose(((word_t*)hashWord)->docs); // add the datA to the totalCount
+  lqclose(((word_t*)hashWord)->docs); // add the data to the totalCount
 }
 
 void addObj(void* hashWord){
@@ -75,8 +69,6 @@ void addObj(void* hashWord){
 
 bool hashContainsWord(void* hashWord, const void* searchWord){
 	word_t *obj =(word_t*)hashWord;
-	//strcpy(h,obj->name);
-	//printf("objectname:%s\n",obj->name);
 	if (!strcmp(obj->name, (char*)searchWord)) {
 		return true;
 	}
@@ -85,8 +77,6 @@ bool hashContainsWord(void* hashWord, const void* searchWord){
 
 bool queueContainsDoc(void* doc, const void* searchWord){
 	doc_t *obj =(doc_t*)doc;
-	//strcpy(h,obj->name);
-	//printf("objectname:%s\n",obj->name);
 	if (!strcmp(obj->name, (char*)searchWord)) {
 		return true;
 	}
@@ -94,10 +84,11 @@ bool queueContainsDoc(void* doc, const void* searchWord){
 }
 
 void NormalizeWord(char word[]){                                               
-  char *p = word;                                                                //check that word has more than three characters
+  char *p = word;  
+	//check that word has more than three characters
 	int size = strlen(word);
 	if(size < 3){                                                                
-    strcpy(word, "");
+        strcpy(word, "");
 	}
 		while (*p){
 			if(!isalpha(*p)){
@@ -125,7 +116,6 @@ void *makeIndex(void *arg){
 			
 			NormalizeWord(currWord);        //normalize word
 			if(strcmp(currWord,"")){        //run if valid word
-				//printf("%s\n",currWord);
 				word_t* newWord;    //creates word
 					if (!(newWord=(word_t*) malloc(sizeof(word_t)))){
 						printf("malloc issue");
@@ -148,58 +138,13 @@ void *makeIndex(void *arg){
 					strcpy(newDoc->name, id);
 					newDoc->occurences=0;
 					doc_t *doc= (doc_t *)lqadd(hashWord->docs,queueContainsDoc, id, (void *)newDoc);
-					doc->occurences+=1;
-					//word_t *e=(word_t*)lhsearch(wordHash, hashContainsWord, currWord, strlen(currWord));
-				//sees if hash contains word
-				
-					//	if (e){  //if hash contains word
-					//doc_t *d=(doc_t*)lqsearch(e->docs, queueContainsDoc, id);  //checks if word queue contains doc
-					//if(d!=NULL){           //if it does
-				//d->occurences += 1; // add 1 to the word occurence
-					//}
-					//else{
-					//doc_t *newDoc;                           //create new doc
-					//if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
-					//	printf("malloc issue");
-					//	return NULL;
-					//}
-					//memset(newDoc->name, 0,(50*sizeof(newDoc->name[0])));
-					//strcpy(newDoc->name, id);
-					//newDoc->occurences=1;
-					//lqput(e->docs,newDoc);      //put doc in word queue
-					//}
-					//}
-					//else {             // if hash does not contain word
-					//word_t* newWord;    //creates word
-					//if (!(newWord=(word_t*) malloc(sizeof(word_t)))){
-					//printf("malloc issue");
-					//return NULL;
-					//}
-					//memset(newWord->name, 0,(50*sizeof(newWord->name[0])));
-					//strcpy(newWord->name, currWord);
-					//newWord->docs=lqopen();
-					//doc_t *newDoc;     //create doc
-					//if (!(newDoc=(doc_t*) malloc(sizeof(doc_t)))){
-					//printf("malloc issue");
-					//return NULL;
-					//}
-					//strcpy(newDoc->name, id);
-					//newDoc->occurences=1;
-					//lqput(newWord->docs,newDoc);
-					//lhput(wordHash, newWord, currWord, strlen(currWord)); // if we don't find it add that word to the hash
-					//}		
-			}
-			//printf("w:%d",sizeof(webpage_t));
-			
+					doc->occurences+=1;	
+			}			
 			free(currWord);
 		}
-		//free(webpage_getURL(w));
 		webpage_delete(w);
 		num+=args->modNum;
-		//free(currWord);
-	}
-	
-	
+	}	
 	return NULL;
 }
 
@@ -226,23 +171,20 @@ int main(int argc, char *argv[]){
 		printf("usage: indexer <pagedir> <indexnm> <numThreads>\n");
 		exit(EXIT_FAILURE);
 	}
-	//long int num=atol(argv[1]);
-	//printf("%d",num);
 	hashtable_t *wordHash = lhopen(100);
 	char* loadDir = (char*)malloc(100*sizeof(char));
 	char* saveDir = "../indexes/";
 
 	char* nameOfFile = (char*)malloc(100*sizeof(char));
-	strcpy(nameOfFile, argv[2]); // NEED TO : change 3 to 2
+	strcpy(nameOfFile, argv[2]);
 
 	char fullSave[100] = {0};
 	sprintf(fullSave,"%s%s",saveDir,nameOfFile);
-	strcpy(loadDir, argv[1]); // NEED TO: change 2 to 1
+	strcpy(loadDir, argv[1]); 
 	long int num=atol(argv[3]);
 	
 	generateThreads(num, loadDir, wordHash);
-	
-	//webpage_delete(w);
+
 	lhapply(wordHash, adderFunc); // calculate total_count
 	lhapply(wordHash, addObj);
 	hashFile = fopen(fullSave,"w");
@@ -255,8 +197,5 @@ int main(int argc, char *argv[]){
 	free(nameOfFile);
 	free(loadDir);
 	fflush(stdout);
-	//fclose(f);
-	//printf("words:%d",total_count);
-	//printf("\nobjects:%d",total_obj);
 	return 0;
 }
