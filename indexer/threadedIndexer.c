@@ -5,6 +5,8 @@
  * Description: An elegant multi-threaded implementation of our indexer. Uses several helper functions as well as a
  * helper struct to ensure the main loop is as clean as readable as possible. We ensure that no webpage is indexed twice by using 
  * modular arithmetic. The shared resource is the document we save the indeces in.
+ *
+ * The authors hope to provide more detailed comments in the near future.
  * 
  */
 #include <stdio.h>
